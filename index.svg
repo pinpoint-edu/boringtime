@@ -2150,6 +2150,7 @@
   <div id="toastContainer" class="toast-container" aria-live="polite"></div>
 
   <script>//<![CDATA[
+const createHtmlEl = (tag) => document.createElementNS("http://www.w3.org/1999/xhtml", tag);
 const docHtml = document.querySelector("html");
       const docBody = document.querySelector("body");
 
@@ -2399,7 +2400,7 @@ const docHtml = document.querySelector("html");
       }
 
       function showToast(message) {
-        const toast = document.createElement("div");
+        const toast = createHtmlEl("div");
         toast.className = "toast";
         toast.textContent = message;
         toastContainer.appendChild(toast);
@@ -2564,7 +2565,7 @@ const docHtml = document.querySelector("html");
         pinnedThemes.forEach((id) => {
           const t = THEMES.find((x) => x.id === id);
           if (!t) return;
-          const btn = document.createElement("button");
+          const btn = createHtmlEl("button");
           btn.type = "button";
           btn.className = `theme-circle${t.id === currentThemeId ? " active" : ""}`;
           btn.style.background = themeCircleBackground(t);
@@ -2574,7 +2575,7 @@ const docHtml = document.querySelector("html");
           themeSwitcher.appendChild(btn);
         });
 
-        const plusBtn = document.createElement("button");
+        const plusBtn = createHtmlEl("button");
         plusBtn.type = "button";
         plusBtn.className = "theme-circle theme-circle-plus";
         plusBtn.dataset.tooltip = "More Themes";
@@ -2662,26 +2663,26 @@ const docHtml = document.querySelector("html");
 
         list.forEach((t) => {
           const isPinned = pinnedThemes.includes(t.id);
-          const card = document.createElement("div");
+          const card = createHtmlEl("div");
           card.className = `theme-card${t.id === currentThemeId ? " is-current" : ""}`;
           card.dataset.themeCard = t.id;
           card.style.background = t.bg === t.bg2 ? t.bg : `linear-gradient(135deg, ${t.bg} 25%, ${t.bg2} 100%)`;
           card.style.color = t.text;
 
           if (t.anim) {
-            const badge = document.createElement("span");
+            const badge = createHtmlEl("span");
             badge.className = "theme-anim-badge";
             badge.style.color = t.accent;
             badge.textContent = "Live";
             card.appendChild(badge);
           }
 
-          const name = document.createElement("span");
+          const name = createHtmlEl("span");
           name.className = "theme-card-name";
           name.textContent = t.name;
           card.appendChild(name);
 
-          const checkBtn = document.createElement("button");
+          const checkBtn = createHtmlEl("button");
           checkBtn.type = "button";
           checkBtn.className = `theme-pin-check${isPinned ? " pinned" : ""}`;
           checkBtn.title = isPinned ? "Remove from bottom bar" : "Add to bottom bar";
@@ -2719,7 +2720,7 @@ const docHtml = document.querySelector("html");
         pinnedThemes.forEach((id) => {
           const t = THEMES.find((x) => x.id === id);
           if (!t) return;
-          const btn = document.createElement("button");
+          const btn = createHtmlEl("button");
           btn.type = "button";
           btn.className = `theme-circle${t.id === currentThemeId ? " active" : ""}`;
           btn.style.background = themeCircleBackground(t);
@@ -3288,7 +3289,7 @@ const docHtml = document.querySelector("html");
         const isPM = h24 >= 12;
         const displayH = settings.use24Hour ? pad(h24) : pad(h24 % 12 || 12);
 
-        const wrap = document.createElement("div");
+        const wrap = createHtmlEl("div");
         wrap.className = "custom-time";
         wrap.innerHTML = `
           <input type="text" inputmode="numeric" class="custom-time-part ct-hh" value="${displayH}" aria-label="${labelPrefix} hour" />
@@ -3372,7 +3373,7 @@ const docHtml = document.querySelector("html");
       }
 
       function escapeHtml(str) {
-        const div = document.createElement("div");
+        const div = createHtmlEl("div");
         div.textContent = str;
         return div.innerHTML;
       }
@@ -3480,7 +3481,7 @@ const docHtml = document.querySelector("html");
         hwList.innerHTML = "";
 
         if (!homework.length) {
-          const empty = document.createElement("li");
+          const empty = createHtmlEl("li");
           empty.className = "empty-state";
           empty.textContent = "Nothing on the list.";
           hwList.appendChild(empty);
@@ -3488,17 +3489,17 @@ const docHtml = document.querySelector("html");
         }
 
         homework.forEach((item) => {
-          const li = document.createElement("li");
+          const li = createHtmlEl("li");
           li.className = "hw-item";
 
-          const span = document.createElement("span");
+          const span = createHtmlEl("span");
           span.className = "hw-text";
           span.textContent = item.text;
 
-          const actions = document.createElement("div");
+          const actions = createHtmlEl("div");
           actions.className = "hw-actions";
 
-          const checkBtn = document.createElement("button");
+          const checkBtn = createHtmlEl("button");
           checkBtn.type = "button";
           checkBtn.className = "icon-btn check-btn";
           checkBtn.title = "Check off";
@@ -3506,7 +3507,7 @@ const docHtml = document.querySelector("html");
           checkBtn.innerHTML = `<span class="material-symbols-outlined icon-sm">check</span>`;
           checkBtn.addEventListener("click", () => removeHomework(item.id, li, "removing-check"));
 
-          const trashBtn = document.createElement("button");
+          const trashBtn = createHtmlEl("button");
           trashBtn.type = "button";
           trashBtn.className = "icon-btn trash-btn";
           trashBtn.title = "Trash";
@@ -3545,7 +3546,7 @@ const docHtml = document.querySelector("html");
       function renderScheduleBar() {
         scheduleBar.innerHTML = "";
         schedules.forEach((sched) => {
-          const btn = document.createElement("button");
+          const btn = createHtmlEl("button");
           btn.type = "button";
           btn.className = `sched-tab${sched.id === activeSchedId ? " active" : ""}`;
           btn.textContent = sched.name;
@@ -3558,7 +3559,7 @@ const docHtml = document.querySelector("html");
           scheduleBar.appendChild(btn);
         });
 
-        const addBtn = document.createElement("button");
+        const addBtn = createHtmlEl("button");
         addBtn.type = "button";
         addBtn.className = "sched-tab sched-tab-add";
         addBtn.title = "Add schedule";
@@ -3576,7 +3577,7 @@ const docHtml = document.querySelector("html");
         const active = getActiveSchedule();
         dayPills.innerHTML = "";
         DAY_LABELS.forEach((label, dayIdx) => {
-          const btn = document.createElement("button");
+          const btn = createHtmlEl("button");
           btn.type = "button";
           const isAssigned = Array.isArray(active.days) && active.days.includes(dayIdx);
           btn.className = `day-pill${isAssigned ? " active" : ""}`;
@@ -3612,7 +3613,7 @@ const docHtml = document.querySelector("html");
         bellList.innerHTML = "";
 
         if (!sorted.length) {
-          const empty = document.createElement("li");
+          const empty = createHtmlEl("li");
           empty.className = "empty-state";
           empty.textContent = "No periods in this schedule.";
           bellList.appendChild(empty);
@@ -3621,29 +3622,29 @@ const docHtml = document.querySelector("html");
         }
 
         sorted.forEach((period) => {
-          const li = document.createElement("li");
+          const li = createHtmlEl("li");
           const isActive = period.id === lastActivePeriodId;
 
           if (editingPeriodId === period.id) {
             li.className = "bell-item is-editing";
 
-            const topRow = document.createElement("div");
+            const topRow = createHtmlEl("div");
             topRow.className = "bell-edit-row";
 
-            const nameInput = document.createElement("input");
+            const nameInput = createHtmlEl("input");
             nameInput.type = "text";
             nameInput.className = "bell-edit-name";
             nameInput.value = period.name;
             nameInput.setAttribute("aria-label", "Edit period name");
 
-            const saveBtn = document.createElement("button");
+            const saveBtn = createHtmlEl("button");
             saveBtn.type = "button";
             saveBtn.className = "icon-btn check-btn";
             saveBtn.title = "Save";
             saveBtn.setAttribute("aria-label", "Save period");
             saveBtn.innerHTML = `<span class="material-symbols-outlined icon-sm">check</span>`;
 
-            const cancelBtn = document.createElement("button");
+            const cancelBtn = createHtmlEl("button");
             cancelBtn.type = "button";
             cancelBtn.className = "icon-btn trash-btn";
             cancelBtn.title = "Cancel";
@@ -3654,10 +3655,10 @@ const docHtml = document.querySelector("html");
             topRow.appendChild(saveBtn);
             topRow.appendChild(cancelBtn);
 
-            const timesRow = document.createElement("div");
+            const timesRow = createHtmlEl("div");
             timesRow.className = "bell-edit-times";
             const editStartPicker = createTimePickerElement(period.start, "Edit start");
-            const sep = document.createElement("span");
+            const sep = createHtmlEl("span");
             sep.className = "time-sep";
             sep.textContent = "to";
             const editEndPicker = createTimePickerElement(period.end, "Edit end");
@@ -3717,29 +3718,29 @@ const docHtml = document.querySelector("html");
 
           li.className = `bell-item${isActive ? " is-active" : ""}`;
 
-          const info = document.createElement("div");
+          const info = createHtmlEl("div");
           info.className = "bell-item-info";
 
-          const nameEl = document.createElement("span");
+          const nameEl = createHtmlEl("span");
           nameEl.className = "bell-item-name";
           if (isActive) {
-            const dot = document.createElement("span");
+            const dot = createHtmlEl("span");
             dot.className = "active-dot";
             nameEl.appendChild(dot);
           }
           nameEl.appendChild(document.createTextNode(period.name));
 
-          const timeEl = document.createElement("span");
+          const timeEl = createHtmlEl("span");
           timeEl.className = "bell-item-time";
           timeEl.textContent = `${formatHHMM(period.start)} – ${formatHHMM(period.end)}`;
 
           info.appendChild(nameEl);
           info.appendChild(timeEl);
 
-          const actions = document.createElement("div");
+          const actions = createHtmlEl("div");
           actions.className = "bell-item-actions";
 
-          const editBtn = document.createElement("button");
+          const editBtn = createHtmlEl("button");
           editBtn.type = "button";
           editBtn.className = "icon-btn edit-btn";
           editBtn.title = "Edit period";
@@ -3750,7 +3751,7 @@ const docHtml = document.querySelector("html");
             renderBellPeriods();
           });
 
-          const delBtn = document.createElement("button");
+          const delBtn = createHtmlEl("button");
           delBtn.type = "button";
           delBtn.className = "icon-btn trash-btn";
           delBtn.title = "Remove period";
@@ -4100,18 +4101,18 @@ const docHtml = document.querySelector("html");
 
       function openInlineWeatherEditor(currentLabel) {
         weatherLabel.innerHTML = "";
-        const form = document.createElement("form");
+        const form = createHtmlEl("form");
         form.className = "weather-inline-form";
         form.autocomplete = "off";
 
-        const input = document.createElement("input");
+        const input = createHtmlEl("input");
         input.type = "text";
         input.className = "weather-inline-input";
         input.value = settings.weatherLocation || currentLabel || "";
         input.placeholder = "City (blank = auto)";
         input.setAttribute("aria-label", "Edit weather location");
 
-        const saveBtn = document.createElement("button");
+        const saveBtn = createHtmlEl("button");
         saveBtn.type = "submit";
         saveBtn.className = "icon-btn check-btn";
         saveBtn.style.width = "24px";
@@ -4119,7 +4120,7 @@ const docHtml = document.querySelector("html");
         saveBtn.title = "Save location";
         saveBtn.innerHTML = `<span class="material-symbols-outlined" style="font-size:14px;">check</span>`;
 
-        const cancelBtn = document.createElement("button");
+        const cancelBtn = createHtmlEl("button");
         cancelBtn.type = "button";
         cancelBtn.className = "icon-btn trash-btn";
         cancelBtn.style.width = "24px";
@@ -4189,7 +4190,7 @@ const docHtml = document.querySelector("html");
               <span class="material-symbols-outlined icon-sm">${info.icon}</span>
               <span>${temp}${unitSym} · ${escapeHtml(info.text)} ·</span>
             `;
-            const locBtn = document.createElement("button");
+            const locBtn = createHtmlEl("button");
             locBtn.type = "button";
             locBtn.className = "weather-loc-btn";
             locBtn.title = "Click to change weather location";
