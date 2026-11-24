@@ -1,0 +1,4232 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="paper">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>boringtime</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..600,0..1,-50..200&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    .material-symbols-outlined {
+      font-family: "Material Symbols Outlined";
+      font-weight: normal;
+      font-style: normal;
+      font-size: 18px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .icon-sm { font-size: 15px; }
+    .icon-md { font-size: 18px; }
+    .icon-lg { font-size: 20px; }
+    :root {
+      --font-serif: "Libre Baskerville", Georgia, "Times New Roman", serif;
+      --font-sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --transition-theme: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+
+      /* Default Old Paper tokens (overridden dynamically by JS theme engine) */
+      --bg: #f3ecdc;
+      --bg-radial: radial-gradient(circle at 50% 30%, #f8f3e6 0%, #ede3cd 100%);
+      --surface: rgba(255, 251, 242, 0.55);
+      --surface-solid: #f6f0e2;
+      --surface-hover: rgba(255, 251, 242, 0.88);
+      --text: #2b2218;
+      --text-muted: #786a57;
+      --text-faint: #9b8d79;
+      --border: rgba(43, 34, 24, 0.15);
+      --border-strong: rgba(43, 34, 24, 0.32);
+      --accent: #7a4b2a;
+      --accent-2: #7a4b2a;
+      --accent-2-border: rgba(43, 34, 24, 0.15);
+      --danger: #9e3b33;
+      --check: #4a6b48;
+      --tooltip-bg: #2b2218;
+      --tooltip-text: #f3ecdc;
+      --paper-grain-opacity: 0.035;
+      --backdrop: rgba(43, 34, 24, 0.35);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    input,
+    textarea {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    *:focus,
+    *:focus-visible {
+      outline: none;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: var(--bg-radial);
+      color: var(--text);
+      font-family: var(--font-serif);
+      line-height: 1.5;
+      transition: var(--transition-theme);
+      position: relative;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      cursor: var(--cursor-default, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mouse-pointer-2.svg") 4 2, auto);
+    }
+
+    a,
+    button,
+    [role="button"],
+    .theme-card,
+    .clock-section,
+    input[type="range"] {
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+    }
+
+    input[type="text"],
+    textarea {
+      cursor: var(--cursor-text, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/text-cursor.svg") 12 12, text);
+    }
+
+    @media (pointer: fine) {
+      body.has-custom-cursor,
+      body.has-custom-cursor * {
+        cursor: none !important;
+      }
+    }
+
+    #customCursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 22px;
+      height: 22px;
+      pointer-events: none;
+      z-index: 2147483647;
+      opacity: 0;
+      transform: translate3d(-100px, -100px, 0);
+      transition: opacity 0.14s ease;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+    }
+
+    #customCursor svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #customCursor.is-default {
+      margin-left: -4px;
+      margin-top: -2px;
+    }
+
+    #customCursor.is-pointer {
+      margin-left: -6px;
+      margin-top: -2px;
+    }
+
+    #customCursor.is-ibeam {
+      margin-left: -11px;
+      margin-top: -11px;
+    }
+
+    body.focus-mode.cursor-hidden #customCursor {
+      opacity: 0 !important;
+    }
+
+    body.focus-mode.cursor-hidden,
+    body.focus-mode.cursor-hidden * {
+      cursor: none !important;
+    }
+
+    /* Subtle paper grain overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: var(--paper-grain-opacity);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      transition: opacity 0.35s ease;
+    }
+
+    /* 4th of July bottom-only faded star pattern */
+    body[data-pattern="stars-bottom"]::after {
+      content: "";
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 30vh;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.22;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cpolygon points='16,6 18.6,13.5 26.5,13.5 20.1,18.2 22.5,25.7 16,21.1 9.5,25.7 11.9,18.2 5.5,13.5 13.4,13.5' fill='%23f8fafc'/%3E%3Cpolygon points='48,36 49.9,41.6 55.8,41.6 51,45 52.8,50.6 48,47.2 43.2,50.6 45,45 40.2,41.6 46.1,41.6' fill='%2393c5fd'/%3E%3C/svg%3E");
+      background-size: 64px 64px;
+      -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.35) 48%, transparent 100%);
+      mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.35) 48%, transparent 100%);
+    }
+
+    /* Animated Theme Background Canvas */
+    #themeBgCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Top-Right Settings Button */
+    .settings-trigger {
+      position: fixed;
+      top: 1.25rem;
+      right: 1.5rem;
+      z-index: 30;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      backdrop-filter: blur(6px);
+      transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, opacity 0.25s ease, transform 0.2s ease;
+    }
+
+    .settings-trigger:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--surface-hover);
+      transform: rotate(22deg);
+    }
+
+    /* Main Container: 16:9 friendly, scales up gracefully for 21:9 ultrawide */
+    .app {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 2.75rem 2.25rem 5.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    @media (min-width: 1680px) {
+      .app {
+        max-width: 1720px;
+        padding: 3.25rem 3.5rem 5.5rem;
+      }
+    }
+
+    /* Focus / Zen Mode */
+    body.focus-mode .app {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+      max-width: 100%;
+    }
+
+    body.focus-mode .clock-section {
+      text-align: center;
+      position: static;
+      margin-bottom: 0;
+      order: 0;
+    }
+
+    body.focus-mode .surrounding-ui,
+    body.focus-mode .bottom-right-dock,
+    body.focus-mode .settings-trigger {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    body.focus-mode .surrounding-ui,
+    body.focus-mode .hw-section,
+    body.focus-mode .bell-panel {
+      height: 0;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    body.focus-mode.hide-bell-in-focus .bell-status {
+      opacity: 0;
+      pointer-events: none;
+      height: 0;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    /* Clock Section */
+    .clock-section {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 3rem;
+      transition: margin 0.3s ease;
+      user-select: none;
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+    }
+
+    .clock-display {
+      font-family: var(--font-serif);
+      font-size: clamp(5.4rem, 16vw, 13.5rem);
+      font-weight: 400;
+      letter-spacing: -0.025em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0.24em;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .clock-display:hover {
+      opacity: 0.82;
+    }
+
+    .clock-display:active {
+      transform: scale(0.99);
+    }
+
+    .clock-ampm {
+      font-family: var(--font-sans);
+      font-size: clamp(1.1rem, 2.4vw, 1.9rem);
+      font-weight: 400;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .bell-status {
+      margin-top: 0.85rem;
+      font-family: var(--font-sans);
+      font-size: 0.92rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      letter-spacing: 0.01em;
+      min-height: 1.4em;
+      transition: opacity 0.3s ease;
+    }
+
+    .bell-status strong {
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .weather-label {
+      margin-top: 0.45rem;
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      font-weight: 400;
+      color: var(--text-faint);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      min-height: 1.4em;
+      transition: opacity 0.25s ease;
+    }
+
+    .weather-loc-btn {
+      font-family: inherit;
+      font-size: inherit;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 1px dashed transparent;
+      padding: 0 1px;
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      transition: color 0.16s ease, border-color 0.16s ease;
+    }
+
+    .weather-loc-btn:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .weather-inline-form {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .weather-inline-input {
+      width: 140px;
+      padding: 0.22rem 0.5rem !important;
+      font-size: 0.76rem !important;
+    }
+
+    /* Main Workspace Grid */
+    .surrounding-ui {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1.12fr;
+      gap: 3.5rem;
+      align-items: start;
+      transition: opacity 0.28s ease, transform 0.28s ease;
+    }
+
+    @media (max-width: 780px) {
+      .surrounding-ui {
+        grid-template-columns: 1fr;
+        gap: 2.25rem;
+      }
+    }
+
+    /* Layout Formats */
+    /* 1. Hero (default): Massive centered clock, balanced columns below */
+    /* 2. Corner: Giant clock anchored top-left, dilated workspace below */
+    body[data-layout="corner"]:not(.focus-mode) .clock-section {
+      text-align: left;
+      margin-bottom: 3.5rem;
+    }
+
+    body[data-layout="corner"]:not(.focus-mode) .clock-display {
+      padding-left: 0;
+      font-size: clamp(5rem, 14vw, 12.2rem);
+    }
+
+    /* 3. Editorial: Giant clock on the left, Homework & Bell Schedule side-by-side on the right */
+    body[data-layout="editorial"]:not(.focus-mode) .app {
+      max-width: 1800px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 4.5rem;
+      align-items: center;
+      padding: 3rem 3.5rem 5.5rem;
+    }
+
+    body[data-layout="editorial"]:not(.focus-mode) .clock-section {
+      text-align: left;
+      width: auto;
+      margin-bottom: 0;
+    }
+
+    body[data-layout="editorial"]:not(.focus-mode) .clock-display {
+      font-size: clamp(4.8rem, 9.6vw, 10.2rem);
+      padding-left: 0;
+    }
+
+    body[data-layout="editorial"]:not(.focus-mode) .surrounding-ui {
+      grid-template-columns: 1fr 1fr;
+      gap: 2.75rem;
+    }
+
+    /* 4. Broadcast: Homework & Bell Schedule up top, massive dilated clock anchored below */
+    body[data-layout="broadcast"]:not(.focus-mode) .app {
+      justify-content: space-between;
+      padding-top: 3rem;
+      padding-bottom: 4.5rem;
+    }
+
+    body[data-layout="broadcast"]:not(.focus-mode) .surrounding-ui {
+      order: 1;
+      margin-bottom: 2.5rem;
+    }
+
+    body[data-layout="broadcast"]:not(.focus-mode) .clock-section {
+      order: 2;
+      margin-top: auto;
+      margin-bottom: 0;
+    }
+
+    body[data-layout="broadcast"]:not(.focus-mode) .clock-display {
+      font-size: clamp(5.8rem, 17vw, 14.5rem);
+    }
+
+    /* 5. Focus Bar: Giant dilated clock centered in viewport, lists tucked cleanly at bottom */
+    body[data-layout="focus-bar"]:not(.focus-mode) .app {
+      justify-content: space-between;
+      padding-top: 10vh;
+    }
+
+    body[data-layout="focus-bar"]:not(.focus-mode) .clock-section {
+      margin: auto 0;
+      padding-bottom: 4vh;
+    }
+
+    body[data-layout="focus-bar"]:not(.focus-mode) .clock-display {
+      font-size: clamp(5.8rem, 17vw, 14.5rem);
+    }
+
+    /* 6. Stacked: Massive centered clock, wide single centered column below */
+    body[data-layout="stacked"]:not(.focus-mode) .surrounding-ui {
+      grid-template-columns: 1fr;
+      max-width: 720px;
+      gap: 2.75rem;
+    }
+
+    @media (max-width: 1120px) {
+      body[data-layout="editorial"]:not(.focus-mode) .app {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+        padding: 2.75rem 1.75rem 5.5rem;
+      }
+
+      body[data-layout="editorial"]:not(.focus-mode) .clock-section {
+        order: 0;
+        text-align: center;
+        margin-bottom: 2.5rem;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 780px) {
+      body[data-layout="editorial"]:not(.focus-mode) .surrounding-ui {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Borderless Sections (Homework & Bell Schedule) */
+    .hw-section,
+    .bell-panel {
+      padding: 0.25rem 0;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.55rem;
+      border-bottom: 1px solid var(--accent-2-border, var(--border));
+    }
+
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+    }
+
+    .section-meta {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Inputs & Buttons */
+    .input-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.9rem;
+    }
+
+    input[type="text"]:not(.custom-time-part) {
+      font-family: var(--font-sans);
+      font-size: 0.825rem;
+      color: var(--text);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.48rem 0.75rem;
+      outline: none;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    input[type="text"]:not(.custom-time-part)::placeholder {
+      color: var(--text-faint);
+    }
+
+    input[type="text"]:not(.custom-time-part):focus {
+      border-color: var(--accent);
+      background: var(--surface-hover);
+    }
+
+    .hw-input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .btn-add {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 0.48rem 0.9rem;
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      white-space: nowrap;
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .btn-add:hover {
+      background: var(--surface-hover);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Homework List */
+    .item-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .hw-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.5rem 0.5rem;
+      border-radius: 11px;
+      transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .hw-item:hover {
+      background: var(--surface);
+    }
+
+    .hw-item.removing-check {
+      opacity: 0;
+      transform: translateX(10px);
+    }
+
+    .hw-item.removing-check .hw-text {
+      text-decoration: line-through;
+    }
+
+    .hw-item.removing-trash {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+
+    .hw-text {
+      font-family: var(--font-serif);
+      font-size: 0.94rem;
+      word-break: break-word;
+      flex: 1;
+    }
+
+    .hw-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-muted);
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      transition: color 0.18s ease, border-color 0.18s ease, background-color 0.18s ease, transform 0.12s ease;
+    }
+
+    .icon-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--surface-hover);
+    }
+
+    .icon-btn:active {
+      transform: scale(0.92);
+    }
+
+    .icon-btn.check-btn:hover {
+      color: var(--check);
+      border-color: var(--check);
+      background: var(--surface-hover);
+    }
+
+    .icon-btn.trash-btn:hover {
+      color: var(--danger);
+      border-color: var(--danger);
+      background: var(--surface-hover);
+    }
+
+    .icon-btn.edit-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--surface-hover);
+    }
+
+    .empty-state {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      color: var(--text-faint);
+      text-align: center;
+      padding: 1.4rem 0.5rem;
+    }
+
+    /* Schedule Tabs & Day Selector */
+    .schedule-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+
+    .sched-tab {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.25rem 0.65rem;
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: color 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+    }
+
+    .sched-tab:hover {
+      color: var(--text);
+      border-color: var(--border-strong);
+    }
+
+    .sched-tab.active {
+      color: var(--text);
+      border-color: var(--accent);
+      background: var(--surface-hover);
+    }
+
+    .sched-tab-add {
+      padding: 0.25rem 0.55rem;
+      font-size: 0.8rem;
+    }
+
+    .sched-days-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .day-pills {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .day-pill {
+      font-family: var(--font-sans);
+      font-size: 0.68rem;
+      font-weight: 500;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.16s ease;
+    }
+
+    .day-pill:hover {
+      border-color: var(--border-strong);
+      color: var(--text);
+    }
+
+    .day-pill.active {
+      background: var(--accent-2);
+      color: var(--bg);
+      border-color: var(--accent-2);
+    }
+
+    .sched-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .text-link-btn {
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      padding: 0.15rem 0;
+      transition: color 0.18s ease;
+    }
+
+    .text-link-btn:hover {
+      color: var(--text);
+    }
+
+    .text-link-btn.danger:hover {
+      color: var(--danger);
+    }
+
+    .new-sched-row {
+      display: none;
+      gap: 0.4rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .new-sched-row.open {
+      display: flex;
+    }
+
+    .new-sched-row input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Custom Time Picker & Bell Form */
+    .bell-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .bell-form-top {
+      display: flex;
+      gap: 0.45rem;
+    }
+
+    .bell-name-input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .bell-form-times {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .time-sep {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .custom-time {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.28rem 0.5rem;
+      gap: 0.12rem;
+      background: transparent;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .custom-time:focus-within {
+      border-color: var(--accent);
+      background: var(--surface-hover);
+    }
+
+    .custom-time-part {
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      line-height: 1.25;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+      background: transparent;
+      border: none;
+      outline: none;
+      width: 28px;
+      min-width: 2.6ch;
+      text-align: center;
+      padding: 0.12rem 0.1rem;
+    }
+
+    .custom-time-colon {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      user-select: none;
+    }
+
+    .custom-time-ampm {
+      font-family: var(--font-sans);
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 0.14rem 0.36rem;
+      margin-left: 0.22rem;
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .custom-time-ampm:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .custom-time-ampm.hidden {
+      display: none;
+    }
+
+    /* Scrollable Bell Period List */
+    .bell-scroll-wrap {
+      position: relative;
+    }
+
+    .bell-scroll-list {
+      max-height: 245px;
+      overflow-y: auto;
+      padding-right: 0.3rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-strong) transparent;
+    }
+
+    .bell-scroll-wrap.can-scroll-down .bell-scroll-list {
+      -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 82%, transparent 100%);
+      mask-image: linear-gradient(to bottom, #000 0%, #000 82%, transparent 100%);
+    }
+
+    .bell-scroll-wrap.can-scroll-up.can-scroll-down .bell-scroll-list {
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 82%, transparent 100%);
+      mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 82%, transparent 100%);
+    }
+
+    .bell-scroll-cue {
+      position: absolute;
+      left: 50%;
+      bottom: 4px;
+      transform: translateX(-50%) translateY(4px);
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: var(--surface-solid);
+      border: 1px solid var(--border-strong);
+      border-radius: 999px;
+      padding: 0.18rem 0.6rem 0.18rem 0.45rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      opacity: 0;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
+      transition: opacity 0.2s ease, transform 0.2s ease, color 0.16s ease, border-color 0.16s ease;
+    }
+
+    .bell-scroll-wrap.can-scroll-down .bell-scroll-cue {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .bell-scroll-cue:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .bell-scroll-list::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .bell-scroll-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .bell-scroll-list::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .bell-scroll-list::-webkit-scrollbar-thumb:hover {
+      background: var(--border-strong);
+    }
+
+    .bell-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      padding: 0.48rem 0.6rem;
+      border-radius: 11px;
+      border: 1px solid transparent;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .bell-item:hover {
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+    .bell-item.is-active {
+      border-color: var(--accent);
+      background: var(--surface);
+    }
+
+    .bell-item-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .bell-item-name {
+      font-family: var(--font-serif);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .active-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .bell-item-time {
+      font-family: var(--font-sans);
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bell-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      flex-shrink: 0;
+    }
+
+    .bell-item.is-editing {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+      background: var(--surface-hover);
+      border-color: var(--border-strong);
+      padding: 0.65rem;
+    }
+
+    .bell-edit-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .bell-edit-name {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .bell-edit-times {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    /* Brightness Dimmer Overlay */
+    #brightnessOverlay {
+      position: fixed;
+      inset: 0;
+      background: #000000;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transition: opacity 0.08s linear;
+    }
+
+    /* Bottom-Right Expanding Dock (Theme Palette + Brightness Slider) */
+    .bottom-right-dock {
+      position: fixed;
+      bottom: 1.35rem;
+      right: 1.5rem;
+      z-index: 25;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      transition: opacity 0.25s ease;
+    }
+
+    .dock-pill {
+      display: inline-flex;
+      flex-direction: row-reverse;
+      align-items: center;
+      height: 38px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      transition: border-color 0.2s ease, background-color 0.2s ease, var(--transition-theme);
+    }
+
+    .dock-pill:hover,
+    .dock-pill:focus-within {
+      border-color: var(--accent);
+      background: var(--surface-hover);
+    }
+
+    .dock-trigger {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      flex-shrink: 0;
+      transition: color 0.18s ease;
+    }
+
+    .dock-pill:hover .dock-trigger,
+    .dock-pill:focus-within .dock-trigger {
+      color: var(--accent);
+    }
+
+    .dock-drawer {
+      display: inline-flex;
+      align-items: center;
+      max-width: 0;
+      opacity: 0;
+      overflow: hidden;
+      pointer-events: none;
+      padding: 0;
+      transition: max-width 0.34s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease, padding 0.28s ease;
+    }
+
+    .dock-pill:hover .dock-drawer,
+    .dock-pill:focus-within .dock-drawer {
+      max-width: 380px;
+      opacity: 1;
+      overflow: visible;
+      pointer-events: auto;
+      padding-left: 0.6rem;
+      padding-right: 0.15rem;
+    }
+
+    .theme-switcher {
+      display: flex;
+      align-items: center;
+      gap: 0.52rem;
+    }
+
+    .brightness-drawer-inner {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding-right: 0.2rem;
+    }
+
+    .brightness-range {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 96px;
+      height: 4px;
+      border-radius: 999px;
+      background: var(--border-strong);
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+    }
+
+    .brightness-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 1.5px solid var(--bg);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+    }
+
+    .brightness-range::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 1.5px solid var(--bg);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+    }
+
+    .brightness-val {
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-muted);
+      min-width: 3.4ch;
+      text-align: right;
+    }
+
+    .theme-circle {
+      position: relative;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border-strong);
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      padding: 0;
+      flex-shrink: 0;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .theme-circle:hover {
+      transform: scale(1.15);
+    }
+
+    .theme-circle.active {
+      box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--text);
+    }
+
+    .theme-circle-plus {
+      background: transparent;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .theme-circle-plus:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .theme-circle::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 10px);
+      right: 50%;
+      transform: translateX(50%) translateY(4px);
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 500;
+      white-space: nowrap;
+      padding: 0.28rem 0.55rem;
+      border-radius: 5px;
+      background: var(--tooltip-bg);
+      color: var(--tooltip-text);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.16s ease, transform 0.16s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .theme-circle:hover::after,
+    .theme-circle:focus-visible::after {
+      opacity: 1;
+      transform: translateX(50%) translateY(0);
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: var(--backdrop);
+      backdrop-filter: blur(4px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      gap: 0.9rem;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 680px;
+      background: var(--surface-solid);
+      border: 1px solid var(--accent-2-border, var(--border-strong));
+      border-radius: 22px;
+      padding: 1.5rem;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
+      transition: var(--transition-theme);
+    }
+
+    .settings-body {
+      display: grid;
+      grid-template-columns: 155px 1fr;
+      gap: 1.35rem;
+      align-items: start;
+    }
+
+    @media (max-width: 600px) {
+      .settings-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .settings-pane {
+      display: none;
+    }
+
+    .settings-pane.active {
+      display: block;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.15rem;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      font-weight: 400;
+    }
+
+    .setting-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.05rem;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .setting-label {
+      font-family: var(--font-sans);
+      font-size: 0.84rem;
+      color: var(--text);
+    }
+
+    .setting-sub {
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.1rem;
+    }
+
+    .pill-toggle {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text);
+      background: transparent;
+      border: 1px solid var(--accent-2-border, var(--border-strong));
+      border-radius: 999px;
+      padding: 0.28rem 0.75rem;
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      min-width: 62px;
+      text-align: center;
+      transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+    }
+
+    .pill-toggle:hover {
+      background: var(--surface-hover);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* 16:9 Layout Preview Grid */
+    .layout-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.55rem;
+      width: 100%;
+      margin-top: 0.55rem;
+    }
+
+    @media (max-width: 460px) {
+      .layout-preview-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .layout-card {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0.42rem;
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.32rem;
+      transition: border-color 0.16s ease, background-color 0.16s ease;
+    }
+
+    .layout-card:hover {
+      border-color: var(--accent-2);
+      background: var(--surface-hover);
+    }
+
+    .layout-card.active {
+      border-color: var(--accent);
+      background: var(--surface-hover);
+    }
+
+    .layout-thumb {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      padding: 5px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow: hidden;
+    }
+
+    .lt-clock {
+      height: 11px;
+      border-radius: 3px;
+      background: var(--accent);
+      opacity: 0.85;
+    }
+
+    .lt-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .lt-box {
+      border-radius: 3px;
+      background: var(--accent-2);
+      opacity: 0.32;
+    }
+
+    /* Thumb variations */
+    .layout-thumb.lt-hero .lt-clock { width: 58%; height: 13px; margin: 1px auto 2px; }
+    .layout-thumb.lt-corner .lt-clock { width: 54%; height: 12px; margin: 1px 0 2px; }
+
+    .layout-thumb.lt-editorial { flex-direction: row; align-items: center; }
+    .layout-thumb.lt-editorial .lt-clock { width: 38%; height: 16px; }
+    .layout-thumb.lt-editorial .lt-cols { grid-template-columns: 1fr 1fr; height: 78%; }
+
+    .layout-thumb.lt-broadcast { justify-content: space-between; }
+    .layout-thumb.lt-broadcast .lt-cols { order: 1; flex: 0 0 13px; }
+    .layout-thumb.lt-broadcast .lt-clock { order: 2; width: 64%; height: 15px; margin: 2px auto 1px; }
+
+    .layout-thumb.lt-focus-bar { justify-content: space-between; }
+    .layout-thumb.lt-focus-bar .lt-clock { width: 62%; height: 15px; margin: auto; }
+    .layout-thumb.lt-focus-bar .lt-cols { flex: 0 0 11px; }
+
+    .layout-thumb.lt-stacked { align-items: center; }
+    .layout-thumb.lt-stacked .lt-clock { width: 56%; height: 12px; margin: 1px 0 2px; }
+    .layout-thumb.lt-stacked .lt-cols { grid-template-columns: 1fr; width: 64%; }
+
+    .layout-card-label {
+      font-family: var(--font-sans);
+      font-size: 0.68rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .layout-card.active .layout-card-label {
+      color: var(--text);
+    }
+
+    .offset-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .offset-btn {
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.16s ease, color 0.16s ease, background-color 0.16s ease;
+    }
+
+    .offset-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--surface-hover);
+    }
+
+    .offset-val {
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      font-variant-numeric: tabular-nums;
+      min-width: 4.5ch;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .modal-footer {
+      margin-top: 1.35rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Theme Selector Modal */
+    .theme-modal {
+      width: 100%;
+      max-width: 720px;
+      background: var(--surface-solid);
+      border: 1px solid var(--accent-2-border, var(--border-strong));
+      border-radius: 22px;
+      padding: 1.35rem;
+      box-shadow: 0 22px 55px rgba(0, 0, 0, 0.28);
+      display: flex;
+      flex-direction: column;
+      max-height: 74vh;
+    }
+
+    .theme-modal-body {
+      display: grid;
+      grid-template-columns: 145px 1fr;
+      gap: 1.15rem;
+      min-height: 0;
+      flex: 1;
+    }
+
+    @media (max-width: 600px) {
+      .theme-modal-body {
+        grid-template-columns: 1fr;
+      }
+      .theme-tabs {
+        flex-direction: row !important;
+        overflow-x: auto;
+        padding-bottom: 0.35rem;
+      }
+    }
+
+    .theme-tabs {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      border-right: 1px solid var(--border);
+      padding-right: 0.85rem;
+    }
+
+    @media (max-width: 600px) {
+      .theme-tabs {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding-right: 0;
+      }
+    }
+
+    .theme-tab-btn {
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      padding: 0.45rem 0.65rem;
+      text-align: left;
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.16s ease;
+    }
+
+    .theme-tab-btn:hover {
+      color: var(--accent);
+      background: var(--surface-hover);
+    }
+
+    .theme-tab-btn.active {
+      color: var(--accent);
+      background: var(--surface-hover);
+      border-color: var(--accent);
+    }
+
+    .theme-grid-scroll {
+      position: relative;
+      overflow-y: auto;
+      padding: 4px 0.35rem 4px 4px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+      gap: 0.65rem;
+      align-content: start;
+      max-height: 48vh;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-strong) transparent;
+    }
+
+    .theme-card {
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      min-height: 78px;
+      padding: 0.85rem 1rem;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease;
+    }
+
+    .theme-card:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
+
+    .theme-card.is-current {
+      box-shadow: 0 0 0 2px var(--text);
+    }
+
+    .theme-card.pan-highlight {
+      box-shadow: 0 0 0 2.5px var(--accent), 0 0 0 5px var(--border-strong);
+      transform: scale(1.03);
+    }
+
+    .theme-card-name {
+      font-family: var(--font-serif);
+      font-size: 0.84rem;
+      line-height: 1.25;
+      padding: 0 0.75rem;
+    }
+
+    .theme-pin-check {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      width: 20px;
+      height: 20px;
+      border-radius: 7px;
+      border: 1px solid rgba(128, 128, 128, 0.45);
+      background: rgba(0, 0, 0, 0.14);
+      color: var(--bg);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: var(--cursor-pointer, url("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg") 6 2, pointer);
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+
+    .theme-pin-check.pinned {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .theme-anim-badge {
+      position: absolute;
+      top: 8px;
+      left: 9px;
+      font-family: var(--font-sans);
+      font-size: 0.58rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      opacity: 0.8;
+    }
+
+    /* Bottom Bar Preview under the Theme Menu */
+    .theme-bar-preview-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .theme-bar-preview-hint {
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .theme-bar-preview {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.45rem 0.65rem;
+      background: var(--surface-solid);
+      border: 1px solid var(--border-strong);
+      border-radius: 999px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+    }
+
+    /* Toast Notifications */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 80;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+
+    .toast {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--tooltip-text);
+      background: var(--tooltip-bg);
+      border: 1px solid var(--border-strong);
+      border-radius: 999px;
+      padding: 0.5rem 1rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="themeBgCanvas"></canvas>
+
+  <!-- Top-Right Settings Button -->
+  <button
+    id="settingsBtn"
+    class="settings-trigger"
+    type="button"
+    title="Settings"
+    aria-label="Open settings"
+  >
+    <span class="material-symbols-outlined icon-md">settings</span>
+  </button>
+
+  <main class="app">
+    <!-- Big Clock -->
+    <section class="clock-section">
+      <div
+        id="clockDisplay"
+        class="clock-display"
+        role="button"
+        tabindex="0"
+        title="Click to toggle focus mode"
+        aria-label="Current time. Click to toggle focus mode."
+      >
+        <span id="clockTime">--:--:--</span>
+        <span id="clockAmPm" class="clock-ampm"></span>
+      </div>
+      <div id="bellStatus" class="bell-status"></div>
+      <div id="weatherLabel" class="weather-label"></div>
+    </section>
+
+    <!-- Left: Homework | Right: Bell Schedule (both borderless) -->
+    <section class="surrounding-ui" aria-label="Workspace">
+      <div class="hw-section">
+        <div class="section-header">
+          <h2 class="section-title">Homework</h2>
+          <span id="hwCount" class="section-meta">0 items</span>
+        </div>
+
+        <form id="hwForm" class="input-row" autocomplete="off">
+          <input
+            id="hwInput"
+            class="hw-input"
+            type="text"
+            placeholder="Add an assignment..."
+            aria-label="New homework assignment"
+          />
+          <button type="submit" class="icon-btn" title="Add assignment" aria-label="Add assignment">
+            <span class="material-symbols-outlined icon-md">add</span>
+          </button>
+        </form>
+
+        <ul id="hwList" class="item-list"></ul>
+      </div>
+
+      <div class="bell-panel">
+        <div class="section-header">
+          <h2 class="section-title">Bell Schedule</h2>
+          <span id="bellCount" class="section-meta">0 periods</span>
+        </div>
+
+        <div id="scheduleBar" class="schedule-bar"></div>
+
+        <form id="newSchedForm" class="new-sched-row" autocomplete="off">
+          <input
+            id="newSchedInput"
+            type="text"
+            placeholder="Schedule name (e.g. Late Start)"
+            aria-label="New schedule name"
+          />
+          <button type="submit" class="icon-btn check-btn" title="Create schedule" aria-label="Create schedule">
+            <span class="material-symbols-outlined icon-sm">check</span>
+          </button>
+          <button type="button" id="cancelNewSched" class="icon-btn trash-btn" title="Cancel" aria-label="Cancel">
+            <span class="material-symbols-outlined icon-sm">close</span>
+          </button>
+        </form>
+
+        <div class="sched-days-row">
+          <div id="dayPills" class="day-pills" aria-label="Days this schedule applies to"></div>
+          <div class="sched-actions">
+            <button type="button" id="clearPeriodsBtn" class="icon-btn" title="Clear periods" aria-label="Clear periods">
+              <span class="material-symbols-outlined icon-sm">delete_sweep</span>
+            </button>
+            <button type="button" id="deleteSchedBtn" class="icon-btn trash-btn" title="Delete schedule" aria-label="Delete schedule">
+              <span class="material-symbols-outlined icon-sm">delete</span>
+            </button>
+          </div>
+        </div>
+
+        <form id="bellForm" class="bell-form" autocomplete="off">
+          <div class="bell-form-top">
+            <input
+              id="bellName"
+              class="bell-name-input"
+              type="text"
+              placeholder="Period name"
+              aria-label="Period name"
+              required
+            />
+            <button type="submit" class="icon-btn" title="Add period" aria-label="Add period">
+              <span class="material-symbols-outlined icon-md">add</span>
+            </button>
+          </div>
+          <div class="bell-form-times">
+            <div class="custom-time" id="startTimePicker">
+              <input type="text" inputmode="numeric" class="custom-time-part ct-hh" value="08" aria-label="Start hour" />
+              <span class="custom-time-colon">:</span>
+              <input type="text" inputmode="numeric" class="custom-time-part ct-mm" value="00" aria-label="Start minute" />
+              <button type="button" class="custom-time-ampm ct-ampm">AM</button>
+            </div>
+            <span class="time-sep">to</span>
+            <div class="custom-time" id="endTimePicker">
+              <input type="text" inputmode="numeric" class="custom-time-part ct-hh" value="08" aria-label="End hour" />
+              <span class="custom-time-colon">:</span>
+              <input type="text" inputmode="numeric" class="custom-time-part ct-mm" value="50" aria-label="End minute" />
+              <button type="button" class="custom-time-ampm ct-ampm">AM</button>
+            </div>
+          </div>
+        </form>
+
+        <div id="bellScrollWrap" class="bell-scroll-wrap">
+          <ul id="bellList" class="item-list bell-scroll-list"></ul>
+          <button id="bellScrollCue" type="button" class="bell-scroll-cue" title="Scroll for more periods" aria-label="Scroll for more periods">
+            <span class="material-symbols-outlined icon-sm">expand_more</span>
+            <span>More</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="brightnessOverlay" aria-hidden="true"></div>
+  <div id="customCursor" class="is-default" aria-hidden="true"></div>
+
+  <!-- Bottom Right Dock: Expanding Paint Palette Pill + Brightness Slider Pill -->
+  <div class="bottom-right-dock">
+    <div class="dock-pill" aria-label="Theme selector">
+      <button type="button" class="dock-trigger" title="Themes" aria-label="Themes">
+        <span class="material-symbols-outlined icon-md">palette</span>
+      </button>
+      <div class="dock-drawer">
+        <div id="themeSwitcher" class="theme-switcher" role="group" aria-label="Pinned themes"></div>
+      </div>
+    </div>
+
+    <div class="dock-pill" aria-label="Brightness control">
+      <button type="button" class="dock-trigger" title="Brightness" aria-label="Brightness">
+        <span class="material-symbols-outlined icon-md">brightness_6</span>
+      </button>
+      <div class="dock-drawer">
+        <div class="brightness-drawer-inner">
+          <input
+            id="brightnessSlider"
+            class="brightness-range"
+            type="range"
+            min="20"
+            max="100"
+            value="100"
+            aria-label="Screen brightness"
+          />
+          <span id="brightnessVal" class="brightness-val">100%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="settingsTitle" class="modal-title">Settings</h2>
+        <button id="closeSettingsBtn" class="icon-btn" type="button" aria-label="Close settings">
+          <span class="material-symbols-outlined icon-sm">close</span>
+        </button>
+      </div>
+
+      <div class="settings-body">
+        <div id="settingsTabs" class="theme-tabs" role="tablist">
+          <button type="button" class="theme-tab-btn active" data-settings-tab="layout">
+            <span class="material-symbols-outlined icon-sm">view_quilt</span>Layout
+          </button>
+          <button type="button" class="theme-tab-btn" data-settings-tab="clock">
+            <span class="material-symbols-outlined icon-sm">schedule</span>Clock &amp; Bells
+          </button>
+          <button type="button" class="theme-tab-btn" data-settings-tab="weather">
+            <span class="material-symbols-outlined icon-sm">partly_cloudy_day</span>Weather &amp; Data
+          </button>
+        </div>
+
+        <div>
+          <!-- Tab 1: Layout -->
+          <div class="settings-pane active" data-settings-pane="layout">
+            <div class="setting-list">
+              <div class="setting-row" style="flex-direction: column; align-items: flex-start; gap: 0.25rem;">
+                <div class="setting-label">Layout Format (16:9 Preview)</div>
+                <div class="setting-sub">Choose how the clock and lists are arranged</div>
+                <div id="layoutGrid" class="layout-preview-grid" role="group" aria-label="Layout format">
+                  <button type="button" class="layout-card" data-layout-choice="hero">
+                    <div class="layout-thumb lt-hero">
+                      <div class="lt-clock"></div>
+                      <div class="lt-cols"><div class="lt-box"></div><div class="lt-box"></div></div>
+                    </div>
+                    <span class="layout-card-label">Hero</span>
+                  </button>
+                  <button type="button" class="layout-card" data-layout-choice="editorial">
+                    <div class="layout-thumb lt-editorial">
+                      <div class="lt-clock"></div>
+                      <div class="lt-cols"><div class="lt-box"></div><div class="lt-box"></div></div>
+                    </div>
+                    <span class="layout-card-label">Editorial</span>
+                  </button>
+                  <button type="button" class="layout-card" data-layout-choice="broadcast">
+                    <div class="layout-thumb lt-broadcast">
+                      <div class="lt-cols"><div class="lt-box"></div><div class="lt-box"></div></div>
+                      <div class="lt-clock"></div>
+                    </div>
+                    <span class="layout-card-label">Broadcast</span>
+                  </button>
+                  <button type="button" class="layout-card" data-layout-choice="corner">
+                    <div class="layout-thumb lt-corner">
+                      <div class="lt-clock"></div>
+                      <div class="lt-cols"><div class="lt-box"></div><div class="lt-box"></div></div>
+                    </div>
+                    <span class="layout-card-label">Corner</span>
+                  </button>
+                  <button type="button" class="layout-card" data-layout-choice="focus-bar">
+                    <div class="layout-thumb lt-focus-bar">
+                      <div class="lt-clock"></div>
+                      <div class="lt-cols"><div class="lt-box"></div><div class="lt-box"></div></div>
+                    </div>
+                    <span class="layout-card-label">Focus Bar</span>
+                  </button>
+                  <button type="button" class="layout-card" data-layout-choice="stacked">
+                    <div class="layout-thumb lt-stacked">
+                      <div class="lt-clock"></div>
+                      <div class="lt-cols"><div class="lt-box"></div><div class="lt-box"></div></div>
+                    </div>
+                    <span class="layout-card-label">Stacked</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Clock & Bells -->
+          <div class="settings-pane" data-settings-pane="clock">
+            <div class="setting-list">
+              <div class="setting-row">
+                <div>
+                  <div class="setting-label">Time Format</div>
+                  <div class="setting-sub">Switch between 12-hour and 24-hour</div>
+                </div>
+                <button id="settingFormatBtn" type="button" class="pill-toggle">12h</button>
+              </div>
+
+              <div class="setting-row">
+                <div>
+                  <div class="setting-label">Adjust Time (Minutes)</div>
+                  <div class="setting-sub">Offset clock if your school bell is fast/slow</div>
+                </div>
+                <div class="offset-controls">
+                  <button id="offsetMinDown" type="button" class="offset-btn" aria-label="Subtract 1 minute">−</button>
+                  <span id="offsetMinVal" class="offset-val">0m</span>
+                  <button id="offsetMinUp" type="button" class="offset-btn" aria-label="Add 1 minute">+</button>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <div>
+                  <div class="setting-label">Adjust Time (Seconds)</div>
+                  <div class="setting-sub">Fine-tune seconds offset</div>
+                </div>
+                <div class="offset-controls">
+                  <button id="offsetSecDown" type="button" class="offset-btn" aria-label="Subtract 1 second">−</button>
+                  <span id="offsetSecVal" class="offset-val">0s</span>
+                  <button id="offsetSecUp" type="button" class="offset-btn" aria-label="Add 1 second">+</button>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <div>
+                  <div class="setting-label">Show Bell Countdown</div>
+                  <div class="setting-sub">Display period timer below main clock</div>
+                </div>
+                <button id="settingBellStatusBtn" type="button" class="pill-toggle">On</button>
+              </div>
+
+              <div class="setting-row">
+                <div>
+                  <div class="setting-label">Hide Countdown in Focus</div>
+                  <div class="setting-sub">Remove bell text when clicking the time</div>
+                </div>
+                <button id="settingFocusBellBtn" type="button" class="pill-toggle">Yes</button>
+              </div>
+
+              <div class="modal-footer">
+                <button id="resetOffsetBtn" type="button" class="text-link-btn">Reset time offset</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 3: Weather & Data -->
+          <div class="settings-pane" data-settings-pane="weather">
+            <div class="setting-list">
+              <div class="setting-row">
+                <div>
+                  <div class="setting-label">Show Weather</div>
+                  <div class="setting-sub">Small live weather label via Open-Meteo</div>
+                </div>
+                <button id="settingWeatherBtn" type="button" class="pill-toggle">On</button>
+              </div>
+
+              <div class="setting-row">
+                <div>
+                  <div class="setting-label">Temperature Unit</div>
+                  <div class="setting-sub">Fahrenheit or Celsius</div>
+                </div>
+                <button id="settingTempUnitBtn" type="button" class="pill-toggle">°F</button>
+              </div>
+
+              <div class="setting-row" style="flex-direction: column; align-items: stretch; gap: 0.45rem;">
+                <div>
+                  <div class="setting-label">Weather Location</div>
+                  <div class="setting-sub">Type a city or leave blank for auto-detected nearby location</div>
+                </div>
+                <form id="weatherLocForm" class="input-row" style="margin-bottom: 0;" autocomplete="off">
+                  <input
+                    id="weatherLocInput"
+                    class="hw-input"
+                    type="text"
+                    placeholder="Auto (nearest city)"
+                    aria-label="Weather location"
+                  />
+                  <button type="submit" class="icon-btn check-btn" title="Set location" aria-label="Set location">
+                    <span class="material-symbols-outlined icon-sm">check</span>
+                  </button>
+                </form>
+              </div>
+
+              <div class="modal-footer">
+                <button id="clearHwBtn" type="button" class="text-link-btn danger">Clear homework</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme Selector Modal (+ Bottom Bar Preview) -->
+  <div id="themeModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="themeModalTitle">
+    <div class="theme-modal">
+      <div class="modal-header">
+        <div>
+          <h2 id="themeModalTitle" class="modal-title">Themes</h2>
+          <div class="setting-sub" id="pinnedCountMeta">4 / 10 pinned to bottom bar</div>
+        </div>
+        <button id="closeThemeModalBtn" class="icon-btn" type="button" aria-label="Close themes">
+          <span class="material-symbols-outlined icon-sm">close</span>
+        </button>
+      </div>
+
+      <div class="theme-modal-body">
+        <div id="themeTabs" class="theme-tabs" role="tablist">
+          <button type="button" class="theme-tab-btn active" data-tab="all"><span class="material-symbols-outlined icon-sm">palette</span>All</button>
+          <button type="button" class="theme-tab-btn" data-tab="classics"><span class="material-symbols-outlined icon-sm">bookmarks</span>Classics</button>
+          <button type="button" class="theme-tab-btn" data-tab="dark"><span class="material-symbols-outlined icon-sm">dark_mode</span>Dark &amp; Neon</button>
+          <button type="button" class="theme-tab-btn" data-tab="seasonal"><span class="material-symbols-outlined icon-sm">eco</span>Seasonal</button>
+          <button type="button" class="theme-tab-btn" data-tab="animated"><span class="material-symbols-outlined icon-sm">auto_awesome</span>Animated</button>
+        </div>
+        <div id="themeGrid" class="theme-grid-scroll"></div>
+      </div>
+    </div>
+
+    <!-- Bottom Bar Preview underneath the Theme Menu -->
+    <div class="theme-bar-preview-wrap">
+      <div id="themeBarPreview" class="theme-bar-preview"></div>
+      <div class="theme-bar-preview-hint">Click a circle above to pan to it in the menu</div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      const STORAGE_KEYS = {
+        theme: "boringtime_theme",
+        pinnedThemes: "boringtime_pinned_themes",
+        settings: "boringtime_settings",
+        homework: "boringtime_homework",
+        schedules: "boringtime_schedules_v3",
+        activeSchedId: "boringtime_active_sched",
+      };
+
+      const MAX_PINNED_THEMES = 10;
+      const DAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
+
+      // Theme Registry (defaults + 12am-inspired themes + animated themes)
+      const THEMES = [
+        { id: "paper", name: "Old Paper", cat: "classics", desc: "Warm creme-tan stationery with subtle paper grain.", bg: "#f3ecdc", bg2: "#ede3cd", text: "#2b2218", muted: "#786a57", accent: "#7a4b2a", light: true, grain: true },
+        { id: "navy", name: "Navy", cat: "classics", desc: "Deep midnight navy with crisp slate-cream ink.", bg: "#0e1a2b", bg2: "#0b1523", text: "#e3ebf5", muted: "#8ea3bf", accent: "#7aa7e0", light: false },
+        { id: "white", name: "Stark White", cat: "classics", desc: "Pure crisp paper white and sharp black.", bg: "#ffffff", bg2: "#ffffff", text: "#0a0a0a", muted: "#666666", accent: "#0a0a0a", light: true },
+        { id: "black", name: "Stark Black", cat: "classics", desc: "Pure pitch black and stark white.", bg: "#000000", bg2: "#000000", text: "#f5f5f5", muted: "#888888", accent: "#f5f5f5", light: false },
+        { id: "cream", name: "Cream", cat: "classics", desc: "Soft sunlit ivory with espresso ink.", bg: "#faf6ee", bg2: "#f1e8d8", text: "#2e261f", muted: "#7d7064", accent: "#9c6644", light: true },
+        { id: "mint", name: "Mint", cat: "classics", desc: "Cool botanical sage-mint on pale celadon.", bg: "#eaf4ef", bg2: "#dcece3", text: "#162b22", muted: "#4e7060", accent: "#1e7d57", light: true },
+        { id: "cloud", name: "Cloud", cat: "classics", desc: "Airy morning mist and soft slate blue.", bg: "#eef2f7", bg2: "#e1e8f0", text: "#1a2433", muted: "#5c6d82", accent: "#3b6ea5", light: true },
+        { id: "matcha", name: "Matcha", cat: "classics", desc: "Earthy ceremonial green tea and warm bamboo.", bg: "#172118", bg2: "#0f1710", text: "#ecf5ec", muted: "#92b095", accent: "#74c67a", light: false },
+        { id: "espresso", name: "Espresso", cat: "classics", desc: "Rich dark roast coffee with steamed oat milk.", bg: "#170f0b", bg2: "#0d0806", text: "#f5ebe0", muted: "#b59d8a", accent: "#d4a373", light: false },
+        { id: "mocha", name: "Mocha", cat: "classics", desc: "Velvety cocoa chocolate, espresso & steamed milk.", bg: "#26160f", bg2: "#180d08", text: "#f8ede3", muted: "#cba78d", accent: "#d98245", light: false },
+        { id: "lavender", name: "Lavender", cat: "classics", desc: "Soft pressed lavender stationery.", bg: "#f3effa", bg2: "#e6dff5", text: "#2a203b", muted: "#71618f", accent: "#8b5cf6", light: true },
+        { id: "sage", name: "Sage", cat: "classics", desc: "Muted dried sage leaf and warm linen.", bg: "#e9ede6", bg2: "#dce2d7", text: "#222b20", muted: "#5e6d5b", accent: "#4d7c4f", light: true },
+        { id: "terracotta", name: "Terracotta", cat: "classics", desc: "Sun-baked clay plaster and warm umber.", bg: "#f5ebe4", bg2: "#ebd9cc", text: "#331e15", muted: "#855b48", accent: "#c25934", light: true },
+        { id: "nord", name: "Nord", cat: "classics", desc: "Arctic slate blue-gray with frost cyan.", bg: "#2e3440", bg2: "#242933", text: "#eceff4", muted: "#9aa5ba", accent: "#88c0d0", light: false },
+
+        { id: "amoled", name: "AMOLED", cat: "dark", desc: "True black void with electric cobalt accents.", bg: "#000000", bg2: "#03050a", text: "#f8fafc", muted: "#7c8ba1", accent: "#3b82f6", light: false },
+        { id: "dracula", name: "Dracula", cat: "dark", desc: "Velvet twilight purple with orchid & mint.", bg: "#1e1a29", bg2: "#15121d", text: "#f8f8f2", muted: "#a49bc9", accent: "#ff79c6", accent2: "#bd93f9", light: false },
+        { id: "cyberpunk", name: "Cyberpunk", cat: "dark", desc: "Neon yellow & magenta on dark chrome.", bg: "#0f0d1a", bg2: "#19132b", text: "#fef08a", muted: "#c084fc", accent: "#f43f5e", accent2: "#22d3ee", light: false },
+        { id: "vaporwave", name: "Vaporwave", cat: "dark", desc: "Retro sunset magenta and electric cyan.", bg: "#1a0b2e", bg2: "#281145", text: "#fdf2f8", muted: "#d8b4fe", accent: "#f472b6", accent2: "#2dd4bf", light: false },
+        { id: "synthwave", name: "Synthwave", cat: "dark", desc: "Outrun horizon violet with hot coral.", bg: "#140c24", bg2: "#221138", text: "#fff1f2", muted: "#c4b5fd", accent: "#fb7185", light: false },
+        { id: "crimson", name: "Crimson", cat: "dark", desc: "Deep obsidian ember with ruby red.", bg: "#180609", bg2: "#26090e", text: "#fff1f2", muted: "#fca5a5", accent: "#ef4444", light: false },
+        { id: "gold-rush", name: "Gold Rush", cat: "dark", desc: "Charcoal slate gilded with warm bullion gold.", bg: "#14120c", bg2: "#1f1b10", text: "#fef9e7", muted: "#cbb782", accent: "#eab308", light: false },
+        { id: "catppuccin", name: "Twilight Plum", cat: "dark", desc: "Cozy pastel-on-plum midnight workspace.", bg: "#1e1e2e", bg2: "#181825", text: "#cdd6f4", muted: "#9399b2", accent: "#cba6f7", light: false },
+        { id: "tokyo-night", name: "Tokyo Night", cat: "dark", desc: "Neon-lit Shinjuku twilight indigo.", bg: "#1a1b26", bg2: "#13141c", text: "#c0caf5", muted: "#7aa2f7", accent: "#bb9af7", light: false },
+        { id: "gruvbox", name: "Gruvbox", cat: "dark", desc: "Retro warm charcoal with amber & ochre.", bg: "#282828", bg2: "#1d2021", text: "#ebdbb2", muted: "#a89984", accent: "#fe8019", light: false },
+        { id: "solarized", name: "Solarized", cat: "dark", desc: "Classic deep teal-slate and warm cream.", bg: "#002b36", bg2: "#00212b", text: "#eee8d5", muted: "#839496", accent: "#2aa198", light: false },
+        { id: "monokai", name: "Monokai", cat: "dark", desc: "Iconic dark olive-slate with acid lime.", bg: "#272822", bg2: "#1e1f1a", text: "#f8f8f2", muted: "#a6a696", accent: "#a6e22e", light: false },
+        { id: "aurora", name: "Aurora", cat: "dark", desc: "Polar night sky lit by emerald-teal ribbons.", bg: "#071418", bg2: "#040c0f", text: "#e2fdf8", muted: "#74b3a8", accent: "#34d399", light: false },
+        { id: "obsidian-rose", name: "Obsidian Rose", cat: "dark", desc: "Matte black glass with muted rosewood.", bg: "#140d12", bg2: "#0d080b", text: "#f7e8ef", muted: "#b5899e", accent: "#f43f5e", light: false },
+
+        { id: "birthday", name: "Birthday", cat: "seasonal", desc: "Playful confetti pastel sky and berry.", bg: "#1f122b", bg2: "#2d183f", text: "#fdf4ff", muted: "#e879f9", accent: "#fbbf24", accent2: "#38bdf8", light: false },
+        { id: "st-patricks", name: "St. Patrick's", cat: "seasonal", desc: "Lush emerald clover on deep forest.", bg: "#071a10", bg2: "#0b2919", text: "#ecfdf5", muted: "#6ee7b7", accent: "#22c55e", light: false },
+        { id: "easter", name: "Easter", cat: "seasonal", desc: "Soft lilac & buttercream spring morning.", bg: "#f7f1fa", bg2: "#ede2f5", text: "#2e1f3d", muted: "#7c6594", accent: "#a855f7", accent2: "#ec4899", light: true },
+        { id: "july-4", name: "4th of July", cat: "seasonal", pattern: "stars-bottom", desc: "Midnight starlight with crimson & cobalt.", bg: "#0a1128", bg2: "#121d42", text: "#f8fafc", muted: "#93c5fd", accent: "#ef4444", accent2: "#60a5fa", light: false },
+        { id: "halloween", name: "Halloween", cat: "seasonal", desc: "Spooky jack-o'-lantern amber on midnight.", bg: "#120c08", bg2: "#1f140c", text: "#fff7ed", muted: "#fdba74", accent: "#f97316", accent2: "#a855f7", light: false },
+        { id: "thanksgiving", name: "Thanksgiving", cat: "seasonal", desc: "Roasted chestnut, pumpkin spice & harvest.", bg: "#1c120a", bg2: "#2b1b0f", text: "#fef3c7", muted: "#d99b66", accent: "#d97706", light: false },
+        { id: "christmas", name: "Christmas", cat: "seasonal", anim: "snow", desc: "Cozy pine evergreen, holly berry & snow.", bg: "#091711", bg2: "#10261c", text: "#fef2f2", muted: "#86efac", accent: "#ef4444", accent2: "#22c55e", light: false },
+        { id: "new-years", name: "New Year's", cat: "seasonal", desc: "Champagne gold sparkle on midnight tuxedo.", bg: "#0c0d12", bg2: "#171923", text: "#fefce8", muted: "#d4c38a", accent: "#facc15", light: false },
+        { id: "autumn", name: "Autumn", cat: "seasonal", desc: "Crisp October maple leaves and cider.", bg: "#1f130c", bg2: "#140b06", text: "#fef3c7", muted: "#d69e6e", accent: "#ea580c", light: false },
+        { id: "solstice", name: "Solstice", cat: "seasonal", desc: "Golden hour honey and warm sand.", bg: "#fff9eb", bg2: "#ffefc7", text: "#2b210d", muted: "#856d3b", accent: "#f59e0b", light: true },
+        { id: "spring", name: "Spring", cat: "seasonal", desc: "Fresh rain-washed meadow and sprout green.", bg: "#f2f9f1", bg2: "#e3f2e1", text: "#1b2e1e", muted: "#5a7a5e", accent: "#16a34a", light: true },
+        { id: "lunar", name: "Lunar New Year", cat: "seasonal", desc: "Imperial lacquer crimson and lucky gold.", bg: "#1f0608", bg2: "#140304", text: "#fef2f2", muted: "#f5b79c", accent: "#fbbf24", accent2: "#ef4444", light: false },
+
+        { id: "ocean", name: "Ocean", cat: "animated", anim: "ocean", desc: "Abyssal trench navy with slow underwater waves.", bg: "#081c24", bg2: "#051319", text: "#e0f4f7", muted: "#79aeb8", accent: "#22d3ee", light: false },
+        { id: "winter", name: "Winter", cat: "animated", anim: "snow", desc: "Frost blue duotone with falling snowflakes.", bg: "#070c16", bg2: "#0c1527", text: "#f1f5f9", muted: "#93c5fd", accent: "#60a5fa", light: false },
+        { id: "valentines", name: "Valentine's Day", cat: "animated", anim: "hearts", desc: "Velvet raspberry-rose with floating hearts.", bg: "#240714", bg2: "#360c20", text: "#fff1f2", muted: "#ff9ebb", accent: "#ff3b7f", light: false },
+        { id: "sakura", name: "Sakura", cat: "animated", anim: "petals", desc: "Midnight Kyoto with drifting blossom petals.", bg: "#10080e", bg2: "#1c0e18", text: "#fff1f2", muted: "#fbcfe8", accent: "#f472b6", light: false },
+        { id: "galaxy", name: "Galaxy", cat: "animated", anim: "stars", desc: "Deep nebula indigo with twinkling star glints.", bg: "#060714", bg2: "#0f102b", text: "#f5f3ff", muted: "#c4b5fd", accent: "#a78bfa", light: false },
+        { id: "matrix", name: "Matrix", cat: "animated", anim: "matrix", desc: "Phosphor green code rain on carbon void.", bg: "#040d08", bg2: "#08170f", text: "#ecfdf5", muted: "#6ee7b7", accent: "#10b981", light: false },
+        { id: "fireflies", name: "Fireflies", cat: "animated", anim: "fireflies", desc: "Summer night forest with glowing fireflies.", bg: "#09120d", bg2: "#050a07", text: "#ecfdf5", muted: "#84b096", accent: "#bef264", light: false },
+        { id: "midnight-rain", name: "Midnight Rain", cat: "animated", anim: "rain", desc: "Quiet glass window with falling rain streaks.", bg: "#0b111a", bg2: "#070b12", text: "#e2e8f0", muted: "#7e92ad", accent: "#38bdf8", light: false },
+        { id: "embers", name: "Embers", cat: "animated", anim: "embers", desc: "Campfire warmth with rising glowing sparks.", bg: "#140a07", bg2: "#0a0503", text: "#fff7ed", muted: "#c2886b", accent: "#f97316", light: false },
+        { id: "deep-sea", name: "Deep Sea", cat: "animated", anim: "bubbles", desc: "Calm abyssal blue with rising bubbles.", bg: "#051622", bg2: "#030e17", text: "#e0f2fe", muted: "#72a6c4", accent: "#38bdf8", light: false },
+        { id: "confetti", name: "Confetti", cat: "animated", anim: "confetti", desc: "Gentle celebratory confetti drifting down.", bg: "#12101c", bg2: "#0b0912", text: "#faf5ff", muted: "#b8a8d9", accent: "#f472b6", light: false },
+      ];
+
+      const DEFAULT_PINNED = ["paper", "navy", "white", "black"];
+
+      const VALID_LAYOUTS = ["hero", "editorial", "broadcast", "corner", "focus-bar", "stacked"];
+
+      const DEFAULT_SETTINGS = {
+        use24Hour: false,
+        offsetSeconds: 0,
+        showBellStatus: true,
+        hideBellInFocus: true,
+        layout: "hero",
+        showWeather: true,
+        tempUnit: "fahrenheit",
+        weatherLocation: "",
+        weatherCoords: null,
+        brightness: 100,
+      };
+
+      const DEFAULT_SCHEDULES = [
+        {
+          id: "default-regular",
+          name: "Regular",
+          days: [1, 2, 3, 5],
+          periods: [
+            { id: "reg-1", name: "1st", start: "07:30", end: "08:22" },
+            { id: "reg-2", name: "2nd", start: "08:25", end: "09:12" },
+            { id: "reg-3", name: "3rd", start: "09:15", end: "10:02" },
+            { id: "reg-4", name: "4th", start: "10:05", end: "10:55" },
+            { id: "reg-5a", name: "5A", start: "10:58", end: "11:19" },
+            { id: "reg-5b", name: "5B", start: "11:22", end: "11:43" },
+            { id: "reg-6a", name: "6A", start: "11:46", end: "12:07" },
+            { id: "reg-6b", name: "6B", start: "12:10", end: "12:31" },
+            { id: "reg-7", name: "7th", start: "12:34", end: "13:21" },
+            { id: "reg-8", name: "8th", start: "13:24", end: "14:14" },
+          ],
+        },
+        {
+          id: "default-thursday",
+          name: "Thursday",
+          days: [4],
+          periods: [
+            { id: "thu-1", name: "1st", start: "07:30", end: "08:13" },
+            { id: "thu-hr", name: "Homeroom", start: "08:16", end: "08:46" },
+            { id: "thu-2", name: "2nd", start: "08:49", end: "09:32" },
+            { id: "thu-3", name: "3rd", start: "09:35", end: "10:18" },
+            { id: "thu-4", name: "4th", start: "10:21", end: "11:06" },
+            { id: "thu-5a", name: "5A", start: "11:09", end: "11:30" },
+            { id: "thu-5b", name: "5B", start: "11:33", end: "11:54" },
+            { id: "thu-6a", name: "6A", start: "11:57", end: "12:18" },
+            { id: "thu-6b", name: "6B", start: "12:21", end: "12:42" },
+            { id: "thu-7", name: "7th", start: "12:45", end: "13:28" },
+            { id: "thu-8", name: "8th", start: "13:31", end: "14:14" },
+          ],
+        },
+      ];
+
+      // State
+      let currentThemeId = localStorage.getItem(STORAGE_KEYS.theme) || "paper";
+      if (!THEMES.some((t) => t.id === currentThemeId)) currentThemeId = "paper";
+
+      let pinnedThemes = loadJSON(STORAGE_KEYS.pinnedThemes, DEFAULT_PINNED);
+      if (!Array.isArray(pinnedThemes) || pinnedThemes.length === 0) {
+        pinnedThemes = [...DEFAULT_PINNED];
+      }
+      pinnedThemes = pinnedThemes.filter((id) => THEMES.some((t) => t.id === id)).slice(0, MAX_PINNED_THEMES);
+      if (pinnedThemes.length === 0) pinnedThemes = ["paper"];
+
+      let activeThemeTab = "all";
+      let settings = { ...DEFAULT_SETTINGS, ...loadJSON(STORAGE_KEYS.settings, {}) };
+      let homework = loadJSON(STORAGE_KEYS.homework, []);
+      let schedules = loadJSON(STORAGE_KEYS.schedules, DEFAULT_SCHEDULES);
+      if (!Array.isArray(schedules) || schedules.length === 0) {
+        schedules = JSON.parse(JSON.stringify(DEFAULT_SCHEDULES));
+      }
+      let activeSchedId = localStorage.getItem(STORAGE_KEYS.activeSchedId) || schedules[0].id;
+      if (!schedules.some((s) => s.id === activeSchedId)) {
+        activeSchedId = schedules[0].id;
+      }
+
+      // Elements
+      const clockDisplay = document.getElementById("clockDisplay");
+      const clockTime = document.getElementById("clockTime");
+      const clockAmPm = document.getElementById("clockAmPm");
+      const bellStatus = document.getElementById("bellStatus");
+      const themeSwitcher = document.getElementById("themeSwitcher");
+
+      const hwForm = document.getElementById("hwForm");
+      const hwInput = document.getElementById("hwInput");
+      const hwList = document.getElementById("hwList");
+      const hwCount = document.getElementById("hwCount");
+
+      const scheduleBar = document.getElementById("scheduleBar");
+      const newSchedForm = document.getElementById("newSchedForm");
+      const newSchedInput = document.getElementById("newSchedInput");
+      const cancelNewSched = document.getElementById("cancelNewSched");
+      const dayPills = document.getElementById("dayPills");
+      const clearPeriodsBtn = document.getElementById("clearPeriodsBtn");
+      const deleteSchedBtn = document.getElementById("deleteSchedBtn");
+
+      const bellForm = document.getElementById("bellForm");
+      const bellName = document.getElementById("bellName");
+      const bellList = document.getElementById("bellList");
+      const bellScrollWrap = document.getElementById("bellScrollWrap");
+      const bellScrollCue = document.getElementById("bellScrollCue");
+      const bellCount = document.getElementById("bellCount");
+      const startTimePicker = document.getElementById("startTimePicker");
+      const endTimePicker = document.getElementById("endTimePicker");
+      const toastContainer = document.getElementById("toastContainer");
+      let editingPeriodId = null;
+
+      const settingsBtn = document.getElementById("settingsBtn");
+      const settingsModal = document.getElementById("settingsModal");
+      const closeSettingsBtn = document.getElementById("closeSettingsBtn");
+      const settingFormatBtn = document.getElementById("settingFormatBtn");
+      const offsetMinDown = document.getElementById("offsetMinDown");
+      const offsetMinUp = document.getElementById("offsetMinUp");
+      const offsetMinVal = document.getElementById("offsetMinVal");
+      const offsetSecDown = document.getElementById("offsetSecDown");
+      const offsetSecUp = document.getElementById("offsetSecUp");
+      const offsetSecVal = document.getElementById("offsetSecVal");
+      const settingBellStatusBtn = document.getElementById("settingBellStatusBtn");
+      const settingFocusBellBtn = document.getElementById("settingFocusBellBtn");
+      const weatherLabel = document.getElementById("weatherLabel");
+      const settingWeatherBtn = document.getElementById("settingWeatherBtn");
+      const settingTempUnitBtn = document.getElementById("settingTempUnitBtn");
+      const weatherLocForm = document.getElementById("weatherLocForm");
+      const weatherLocInput = document.getElementById("weatherLocInput");
+      const resetOffsetBtn = document.getElementById("resetOffsetBtn");
+      const clearHwBtn = document.getElementById("clearHwBtn");
+      const layoutCards = document.querySelectorAll(".layout-card");
+
+      const themeModal = document.getElementById("themeModal");
+      const closeThemeModalBtn = document.getElementById("closeThemeModalBtn");
+      const themeTabs = document.getElementById("themeTabs");
+      const themeGrid = document.getElementById("themeGrid");
+      const themeBarPreview = document.getElementById("themeBarPreview");
+      const pinnedCountMeta = document.getElementById("pinnedCountMeta");
+
+      const brightnessOverlay = document.getElementById("brightnessOverlay");
+      const brightnessSlider = document.getElementById("brightnessSlider");
+      const brightnessVal = document.getElementById("brightnessVal");
+
+      const bgCanvas = document.getElementById("themeBgCanvas");
+      const bgCtx = bgCanvas.getContext("2d");
+
+      function loadJSON(key, fallback) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch {
+          return fallback;
+        }
+      }
+
+      function saveJSON(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+
+      function saveSettings() {
+        saveJSON(STORAGE_KEYS.settings, settings);
+      }
+
+      function saveSchedules() {
+        saveJSON(STORAGE_KEYS.schedules, schedules);
+        localStorage.setItem(STORAGE_KEYS.activeSchedId, activeSchedId);
+      }
+
+      function getActiveSchedule() {
+        return schedules.find((s) => s.id === activeSchedId) || schedules[0];
+      }
+
+      function getScheduleForToday(dayIndex) {
+        return schedules.find((s) => Array.isArray(s.days) && s.days.includes(dayIndex)) || getActiveSchedule();
+      }
+
+      function showToast(message) {
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add("show"));
+        setTimeout(() => {
+          toast.classList.remove("show");
+          setTimeout(() => toast.remove(), 220);
+        }, 3200);
+      }
+
+      // Color helpers for dynamic theme token generation
+      function hexToRgb(hex) {
+        const clean = hex.replace("#", "");
+        const num = parseInt(clean, 16);
+        return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+      }
+
+      function rgbaStr(hex, a) {
+        const [r, g, b] = hexToRgb(hex);
+        return `rgba(${r}, ${g}, ${b}, ${a})`;
+      }
+
+      function applyTheme(themeId) {
+        const theme = THEMES.find((t) => t.id === themeId) || THEMES[0];
+        currentThemeId = theme.id;
+        localStorage.setItem(STORAGE_KEYS.theme, theme.id);
+
+        const root = document.documentElement.style;
+        root.setProperty("--bg", theme.bg);
+        root.setProperty(
+          "--bg-radial",
+          theme.bg === theme.bg2 ? "none" : `radial-gradient(circle at 50% 28%, ${theme.bg} 0%, ${theme.bg2} 100%)`
+        );
+        root.setProperty("--text", theme.text);
+        root.setProperty("--text-muted", theme.muted);
+        root.setProperty("--text-faint", rgbaStr(theme.muted, 0.72));
+        const secAccent = theme.accent2 || theme.accent;
+        root.setProperty("--accent", theme.accent);
+        root.setProperty("--accent-2", secAccent);
+        root.setProperty("--accent-2-border", theme.accent2 ? rgbaStr(secAccent, 0.35) : rgbaStr(theme.text, 0.14));
+        root.setProperty("--border", rgbaStr(theme.text, theme.light ? 0.14 : 0.14));
+        root.setProperty("--border-strong", rgbaStr(theme.text, theme.light ? 0.3 : 0.3));
+        root.setProperty("--surface", theme.light ? rgbaStr("#ffffff", 0.52) : rgbaStr(theme.bg2, 0.62));
+        root.setProperty("--surface-solid", theme.light ? theme.bg : theme.bg2);
+        root.setProperty("--surface-hover", theme.light ? rgbaStr("#ffffff", 0.85) : rgbaStr(theme.text, 0.08));
+        root.setProperty("--danger", theme.light ? "#b8322a" : "#fb7185");
+        root.setProperty("--check", theme.light ? "#2f7a47" : "#6ee7b7");
+        root.setProperty("--tooltip-bg", theme.text);
+        root.setProperty("--tooltip-text", theme.bg);
+        root.setProperty("--paper-grain-opacity", theme.grain ? "0.035" : "0");
+        root.setProperty("--backdrop", theme.light ? rgbaStr(theme.text, 0.25) : "rgba(0, 0, 0, 0.55)");
+
+        document.documentElement.setAttribute("data-theme", theme.id);
+        if (theme.pattern) {
+          document.body.setAttribute("data-pattern", theme.pattern);
+        } else {
+          document.body.removeAttribute("data-pattern");
+        }
+        setThemeAnimation(theme.anim || null);
+        updateCustomCursor(theme);
+        renderBottomThemeBar();
+        if (themeModal.classList.contains("open")) {
+          renderThemeGrid();
+          renderThemeBarPreview();
+        }
+      }
+
+      const customCursorEl = document.getElementById("customCursor");
+      const CURSOR_SVGS = { default: null, pointer: null, ibeam: null };
+      const TINTED_CURSORS = { default: "", pointer: "", ibeam: "" };
+      let currentCursorMode = "default";
+      const isFinePointer = window.matchMedia && window.matchMedia("(pointer: fine)").matches;
+
+      async function loadCursorSvgs() {
+        try {
+          const [dRes, pRes, tRes] = await Promise.all([
+            fetch("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mouse-pointer-2.svg"),
+            fetch("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/pointer.svg"),
+            fetch("https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/text-cursor.svg"),
+          ]);
+          if (dRes.ok) CURSOR_SVGS.default = await dRes.text();
+          if (pRes.ok) CURSOR_SVGS.pointer = await pRes.text();
+          if (tRes.ok) CURSOR_SVGS.ibeam = await tRes.text();
+          const active = THEMES.find((t) => t.id === currentThemeId) || THEMES[0];
+          updateCustomCursor(active);
+          if (isFinePointer && CURSOR_SVGS.default) {
+            document.body.classList.add("has-custom-cursor");
+          }
+        } catch {}
+      }
+      loadCursorSvgs();
+
+      function tintCursorSvg(raw, theme, fillBg = true) {
+        return raw
+          .replace(/stroke="currentColor"/g, `stroke="${theme.text}"`)
+          .replace(/fill="none"/g, fillBg ? `fill="${theme.bg}"` : `fill="none"`);
+      }
+
+      function renderCustomCursorMode(mode) {
+        currentCursorMode = mode;
+        customCursorEl.className = mode === "pointer" ? "is-pointer" : mode === "ibeam" ? "is-ibeam" : "is-default";
+        if (TINTED_CURSORS[mode]) {
+          customCursorEl.innerHTML = TINTED_CURSORS[mode];
+        }
+      }
+
+      function updateCustomCursor(theme) {
+        const root = document.documentElement.style;
+        if (CURSOR_SVGS.default) {
+          const svg = tintCursorSvg(CURSOR_SVGS.default, theme, true);
+          TINTED_CURSORS.default = svg;
+          root.setProperty("--cursor-default", `url("data:image/svg+xml,${encodeURIComponent(svg)}") 4 2, auto`);
+        }
+        if (CURSOR_SVGS.pointer) {
+          const svg = tintCursorSvg(CURSOR_SVGS.pointer, theme, true);
+          TINTED_CURSORS.pointer = svg;
+          root.setProperty("--cursor-pointer", `url("data:image/svg+xml,${encodeURIComponent(svg)}") 6 2, pointer`);
+        }
+        if (CURSOR_SVGS.ibeam) {
+          const svg = tintCursorSvg(CURSOR_SVGS.ibeam, theme, false);
+          TINTED_CURSORS.ibeam = svg;
+          root.setProperty("--cursor-text", `url("data:image/svg+xml,${encodeURIComponent(svg)}") 12 12, text`);
+        }
+        renderCustomCursorMode(currentCursorMode);
+      }
+
+      if (isFinePointer) {
+        document.addEventListener("mousemove", (e) => {
+          if (!document.body.classList.contains("has-custom-cursor")) return;
+          customCursorEl.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+          customCursorEl.style.opacity = "1";
+
+          const target = e.target;
+          let nextMode = "default";
+          if (target && target.closest) {
+            if (target.closest('input[type="text"], textarea, [contenteditable="true"]')) {
+              nextMode = "ibeam";
+            } else if (target.closest('a, button, [role="button"], .theme-card, .clock-section, input[type="range"]')) {
+              nextMode = "pointer";
+            }
+          }
+          if (nextMode !== currentCursorMode) {
+            renderCustomCursorMode(nextMode);
+          }
+        });
+
+        document.addEventListener("mouseleave", () => {
+          customCursorEl.style.opacity = "0";
+        });
+      }
+
+      function themeCircleBackground(t) {
+        if (t.accent2) {
+          return `linear-gradient(135deg, ${t.bg} 25%, ${t.accent} 65%, ${t.accent2} 100%)`;
+        }
+        return t.bg === t.bg2 ? t.bg : `linear-gradient(135deg, ${t.bg} 45%, ${t.accent} 140%)`;
+      }
+
+      // Render Bottom-Right Theme Bar + '+' Button
+      function renderBottomThemeBar() {
+        themeSwitcher.innerHTML = "";
+        pinnedThemes.forEach((id) => {
+          const t = THEMES.find((x) => x.id === id);
+          if (!t) return;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = `theme-circle${t.id === currentThemeId ? " active" : ""}`;
+          btn.style.background = themeCircleBackground(t);
+          btn.dataset.tooltip = t.name;
+          btn.setAttribute("aria-label", `${t.name} theme`);
+          btn.addEventListener("click", () => applyTheme(t.id));
+          themeSwitcher.appendChild(btn);
+        });
+
+        const plusBtn = document.createElement("button");
+        plusBtn.type = "button";
+        plusBtn.className = "theme-circle theme-circle-plus";
+        plusBtn.dataset.tooltip = "More Themes";
+        plusBtn.setAttribute("aria-label", "Open theme selector");
+        plusBtn.innerHTML = `<span class="material-symbols-outlined icon-sm">add</span>`;
+        plusBtn.addEventListener("click", openThemeModal);
+        themeSwitcher.appendChild(plusBtn);
+      }
+
+      // Theme Selector Modal + Bottom Bar Preview + Parabolic Pan Animation
+      let panAnimId = null;
+
+      function parabolicScrollTo(container, targetTop, duration = 620, onDone) {
+        if (panAnimId) cancelAnimationFrame(panAnimId);
+        const startTop = container.scrollTop;
+        const delta = targetTop - startTop;
+        if (Math.abs(delta) < 2) {
+          if (onDone) onDone();
+          return;
+        }
+        const startTime = performance.now();
+
+        function step(now) {
+          const elapsed = now - startTime;
+          const t = Math.min(1, elapsed / duration);
+          // Quadratic / parabolic ease-in-out velocity profile
+          const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+          container.scrollTop = startTop + delta * eased;
+          if (t < 1) {
+            panAnimId = requestAnimationFrame(step);
+          } else {
+            panAnimId = null;
+            if (onDone) onDone();
+          }
+        }
+        panAnimId = requestAnimationFrame(step);
+      }
+
+      function panToThemeInMenu(themeId) {
+        if (activeThemeTab !== "all") {
+          activeThemeTab = "all";
+          themeTabs.querySelectorAll(".theme-tab-btn").forEach((b) => {
+            b.classList.toggle("active", b.dataset.tab === "all");
+          });
+          renderThemeGrid();
+        }
+        const card = themeGrid.querySelector(`[data-theme-card="${themeId}"]`);
+        if (!card) return;
+        const gridRect = themeGrid.getBoundingClientRect();
+        const cardRect = card.getBoundingClientRect();
+        const relativeTop = cardRect.top - gridRect.top + themeGrid.scrollTop;
+        const maxScroll = Math.max(0, themeGrid.scrollHeight - themeGrid.clientHeight);
+        const targetTop = Math.min(maxScroll, Math.max(0, relativeTop - themeGrid.clientHeight / 2 + cardRect.height / 2));
+        parabolicScrollTo(themeGrid, targetTop, 620, () => {
+          card.classList.add("pan-highlight");
+          setTimeout(() => card.classList.remove("pan-highlight"), 800);
+        });
+      }
+
+      function togglePinTheme(themeId) {
+        const isPinned = pinnedThemes.includes(themeId);
+        if (isPinned) {
+          if (pinnedThemes.length <= 1) {
+            showToast("Keep at least 1 theme in the bottom bar.");
+            return;
+          }
+          pinnedThemes = pinnedThemes.filter((id) => id !== themeId);
+        } else {
+          if (pinnedThemes.length >= MAX_PINNED_THEMES) {
+            showToast(`Max ${MAX_PINNED_THEMES} themes in the bottom bar.`);
+            return;
+          }
+          pinnedThemes.push(themeId);
+        }
+        saveJSON(STORAGE_KEYS.pinnedThemes, pinnedThemes);
+        renderBottomThemeBar();
+        renderThemeGrid();
+        renderThemeBarPreview();
+      }
+
+      function renderThemeGrid() {
+        pinnedCountMeta.textContent = `${pinnedThemes.length} / ${MAX_PINNED_THEMES} pinned to bottom bar`;
+        const list = activeThemeTab === "all" ? THEMES : THEMES.filter((t) => t.cat === activeThemeTab);
+        themeGrid.innerHTML = "";
+
+        list.forEach((t) => {
+          const isPinned = pinnedThemes.includes(t.id);
+          const card = document.createElement("div");
+          card.className = `theme-card${t.id === currentThemeId ? " is-current" : ""}`;
+          card.dataset.themeCard = t.id;
+          card.style.background = t.bg === t.bg2 ? t.bg : `linear-gradient(135deg, ${t.bg} 25%, ${t.bg2} 100%)`;
+          card.style.color = t.text;
+
+          if (t.anim) {
+            const badge = document.createElement("span");
+            badge.className = "theme-anim-badge";
+            badge.style.color = t.accent;
+            badge.textContent = "Live";
+            card.appendChild(badge);
+          }
+
+          const name = document.createElement("span");
+          name.className = "theme-card-name";
+          name.textContent = t.name;
+          card.appendChild(name);
+
+          const checkBtn = document.createElement("button");
+          checkBtn.type = "button";
+          checkBtn.className = `theme-pin-check${isPinned ? " pinned" : ""}`;
+          checkBtn.title = isPinned ? "Remove from bottom bar" : "Add to bottom bar";
+          checkBtn.setAttribute("aria-label", `${isPinned ? "Unpin" : "Pin"} ${t.name}`);
+          checkBtn.innerHTML = isPinned
+            ? `<span class="material-symbols-outlined" style="font-size:14px;">check</span>`
+            : "";
+          checkBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            togglePinTheme(t.id);
+          });
+          card.appendChild(checkBtn);
+
+          card.addEventListener("click", () => {
+            if (currentThemeId === t.id && pinnedThemes.includes(t.id)) {
+              togglePinTheme(t.id);
+              return;
+            }
+            if (!pinnedThemes.includes(t.id)) {
+              if (pinnedThemes.length < MAX_PINNED_THEMES) {
+                pinnedThemes.push(t.id);
+                saveJSON(STORAGE_KEYS.pinnedThemes, pinnedThemes);
+              } else {
+                showToast(`Max ${MAX_PINNED_THEMES} themes in bottom bar — uncheck one to add.`);
+              }
+            }
+            applyTheme(t.id);
+          });
+          themeGrid.appendChild(card);
+        });
+      }
+
+      function renderThemeBarPreview() {
+        themeBarPreview.innerHTML = "";
+        pinnedThemes.forEach((id) => {
+          const t = THEMES.find((x) => x.id === id);
+          if (!t) return;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = `theme-circle${t.id === currentThemeId ? " active" : ""}`;
+          btn.style.background = themeCircleBackground(t);
+          btn.dataset.tooltip = t.name;
+          btn.setAttribute("aria-label", `Pan to ${t.name}`);
+          btn.addEventListener("click", () => panToThemeInMenu(t.id));
+          themeBarPreview.appendChild(btn);
+        });
+      }
+
+      function openThemeModal() {
+        renderThemeGrid();
+        renderThemeBarPreview();
+        themeModal.classList.add("open");
+      }
+
+      closeThemeModalBtn.addEventListener("click", () => themeModal.classList.remove("open"));
+      themeModal.addEventListener("click", (e) => {
+        if (e.target === themeModal) themeModal.classList.remove("open");
+      });
+
+      themeTabs.querySelectorAll(".theme-tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          activeThemeTab = btn.dataset.tab;
+          themeTabs.querySelectorAll(".theme-tab-btn").forEach((b) => {
+            b.classList.toggle("active", b === btn);
+          });
+          renderThemeGrid();
+          themeGrid.scrollTop = 0;
+        });
+      });
+
+      // Animated Theme Canvas Engine (Snow, Hearts, Petals, Stars, Matrix)
+      let currentAnimType = null;
+      let animRafId = null;
+      let particles = [];
+
+      function resizeCanvas() {
+        bgCanvas.width = window.innerWidth;
+        bgCanvas.height = window.innerHeight;
+      }
+      window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
+
+      function setThemeAnimation(type) {
+        if (type === currentAnimType) return;
+        currentAnimType = type;
+        if (animRafId) {
+          cancelAnimationFrame(animRafId);
+          animRafId = null;
+        }
+        bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+        particles = [];
+        if (!type) return;
+
+        const w = bgCanvas.width;
+        const h = bgCanvas.height;
+
+        let oceanTime = 0;
+        const materialHeartPath =
+          typeof Path2D === "function"
+            ? new Path2D("M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z")
+            : null;
+
+        if (type === "snow") {
+          const count = Math.min(130, Math.floor(w / 9));
+          for (let i = 0; i < count; i++) {
+            particles.push({
+              x: Math.random() * w,
+              y: Math.random() * h,
+              r: Math.random() * 2.2 + 0.8,
+              vy: Math.random() * 0.8 + 0.35,
+              phase: Math.random() * Math.PI * 2,
+              alpha: Math.random() * 0.3 + 0.18,
+            });
+          }
+        } else if (type === "hearts") {
+          const heartColors = ["#ff4d88", "#fb7185", "#f43f5e", "#ff85b3"];
+          const count = Math.min(26, Math.max(12, Math.floor(w / 80)));
+          for (let i = 0; i < count; i++) {
+            particles.push({
+              x: Math.random() * w,
+              y: Math.random() * h,
+              size: 16 + Math.random() * 12,
+              vy: -(0.45 + Math.random() * 0.65),
+              vx: (Math.random() - 0.5) * 0.3,
+              rot: (Math.random() - 0.5) * 0.35,
+              phase: Math.random() * Math.PI * 2,
+              alpha: 0.28 + Math.random() * 0.38,
+              color: heartColors[i % heartColors.length],
+            });
+          }
+        } else if (type === "petals") {
+          for (let i = 0; i < 42; i++) {
+            particles.push({
+              x: Math.random() * w,
+              y: Math.random() * h,
+              r: 4 + Math.random() * 5,
+              vy: 0.6 + Math.random() * 0.9,
+              vx: 0.3 + Math.random() * 0.6,
+              rot: Math.random() * Math.PI * 2,
+              vrot: (Math.random() - 0.5) * 0.03,
+              alpha: 0.3 + Math.random() * 0.45,
+            });
+          }
+        } else if (type === "stars") {
+          const starCount = Math.min(125, Math.max(60, Math.floor((w * h) / 13000)));
+          const colors = ["255,255,255", "233,213,255", "186,230,253"];
+          for (let i = 0; i < starCount; i++) {
+            particles.push({
+              x: Math.random() * w,
+              y: Math.random() * h,
+              r: Math.random() * 1.45 + 0.55,
+              phase: Math.random() * Math.PI * 2,
+              speed: Math.random() * 0.028 + 0.009,
+              glint: i % 3 === 0,
+              rgb: colors[i % colors.length],
+            });
+          }
+        } else if (type === "ocean") {
+          particles = [
+            { yRatio: 0.72, amp: 18, freq: 0.0038, speed: 0.7, color: "rgba(6, 182, 212, 0.11)" },
+            { yRatio: 0.8, amp: 22, freq: 0.003, speed: -0.5, color: "rgba(14, 165, 233, 0.13)" },
+            { yRatio: 0.88, amp: 14, freq: 0.0048, speed: 0.9, color: "rgba(56, 189, 248, 0.10)" },
+          ];
+        } else if (type === "matrix") {
+          const cols = Math.floor(w / 22);
+          for (let i = 0; i < cols; i++) {
+            particles.push({
+              x: i * 22 + 6,
+              y: Math.random() * h,
+              vy: 1.5 + Math.random() * 2.5,
+              char: String.fromCharCode(0x30a0 + Math.floor(Math.random() * 96)),
+            });
+          }
+        } else if (type === "fireflies") {
+          for (let i = 0; i < 40; i++) {
+            particles.push({
+              x: Math.random() * w,
+              y: Math.random() * h,
+              vx: (Math.random() - 0.5) * 0.45,
+              vy: (Math.random() - 0.5) * 0.45,
+              r: 1.5 + Math.random() * 2.2,
+              phase: Math.random() * Math.PI * 2,
+            });
+          }
+        } else if (type === "rain") {
+          for (let i = 0; i < 90; i++) {
+            particles.push({
+              x: Math.random() * w,
+              y: Math.random() * h,
+              len: 12 + Math.random() * 18,
+              vy: 6 + Math.random() * 5,
+              alpha: 0.14 + Math.random() * 0.22,
+            });
+          }
+        } else if (type === "embers") {
+          for (let i = 0; i < 45; i++) {
+            particles.push({
+              x: Math.random() * w,
+              y: Math.random() * h,
+              r: 1.2 + Math.random() * 2.3,
+              vy: -(0.7 + Math.random() * 1.4),
+              phase: Math.random() * Math.PI * 2,
+              alpha: 0.35 + Math.random() * 0.5,
+              color: Math.random() > 0.4 ? "#f97316" : "#fbbf24",
+            });
+          }
+        } else if (type === "bubbles") {
+          for (let i = 0; i < 32; i++) {
+            particles.push({
+              x: Math.random() * w,
+              y: Math.random() * h,
+              r: 3 + Math.random() * 9,
+              vy: -(0.35 + Math.random() * 0.65),
+              phase: Math.random() * Math.PI * 2,
+              alpha: 0.12 + Math.random() * 0.22,
+            });
+          }
+        } else if (type === "confetti") {
+          const colors = ["#f472b6", "#60a5fa", "#fbbf24", "#34d399", "#c084fc"];
+          for (let i = 0; i < 55; i++) {
+            particles.push({
+              x: Math.random() * w,
+              y: Math.random() * h,
+              w: 4 + Math.random() * 5,
+              h: 6 + Math.random() * 6,
+              vy: 0.7 + Math.random() * 1.1,
+              vx: (Math.random() - 0.5) * 0.6,
+              rot: Math.random() * Math.PI * 2,
+              vrot: (Math.random() - 0.5) * 0.06,
+              color: colors[i % colors.length],
+              alpha: 0.35 + Math.random() * 0.45,
+            });
+          }
+        }
+
+        function drawHeart(ctx, x, y, s) {
+          ctx.beginPath();
+          ctx.moveTo(x, y + s * 0.3);
+          ctx.bezierCurveTo(x, y, x - s * 0.5, y, x - s * 0.5, y + s * 0.3);
+          ctx.bezierCurveTo(x - s * 0.5, y + s * 0.6, x, y + s * 0.85, x, y + s);
+          ctx.bezierCurveTo(x, y + s * 0.85, x + s * 0.5, y + s * 0.6, x + s * 0.5, y + s * 0.3);
+          ctx.bezierCurveTo(x + s * 0.5, y, x, y, x, y + s * 0.3);
+          ctx.fill();
+        }
+
+        function loop() {
+          const cw = bgCanvas.width;
+          const ch = bgCanvas.height;
+          bgCtx.clearRect(0, 0, cw, ch);
+
+          if (currentAnimType === "snow") {
+            for (const p of particles) {
+              p.phase += 0.012;
+              p.y += p.vy;
+              p.x += Math.sin(p.phase) * 0.5;
+              if (p.y > ch + 5) { p.y = -5; p.x = Math.random() * cw; }
+              if (p.x > cw + 5) p.x = -5;
+              if (p.x < -5) p.x = cw + 5;
+              bgCtx.fillStyle = `rgba(224, 242, 254, ${p.alpha})`;
+              bgCtx.beginPath();
+              bgCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+              bgCtx.fill();
+            }
+          } else if (currentAnimType === "hearts") {
+            for (const p of particles) {
+              p.phase += 0.02;
+              p.y += p.vy;
+              p.x += p.vx + Math.sin(p.phase) * 0.35;
+              if (p.y < -30) { p.y = ch + 25; p.x = Math.random() * cw; }
+              bgCtx.save();
+              bgCtx.translate(p.x, p.y);
+              bgCtx.rotate(p.rot);
+              bgCtx.globalAlpha = p.alpha;
+              bgCtx.fillStyle = p.color;
+              if (materialHeartPath) {
+                const scale = p.size / 24;
+                bgCtx.scale(scale, scale);
+                bgCtx.translate(-12, -12);
+                bgCtx.fill(materialHeartPath);
+              } else {
+                drawHeart(bgCtx, 0, 0, p.size);
+              }
+              bgCtx.restore();
+            }
+          } else if (currentAnimType === "ocean") {
+            oceanTime += 0.012;
+            for (const wv of particles) {
+              bgCtx.beginPath();
+              const baseY = ch * wv.yRatio;
+              bgCtx.moveTo(0, ch);
+              for (let x = 0; x <= cw; x += 24) {
+                const y =
+                  baseY +
+                  Math.sin(x * wv.freq + oceanTime * wv.speed) * wv.amp +
+                  Math.cos(x * wv.freq * 0.6 - oceanTime * 0.4) * (wv.amp * 0.4);
+                bgCtx.lineTo(x, y);
+              }
+              bgCtx.lineTo(cw, ch);
+              bgCtx.closePath();
+              bgCtx.fillStyle = wv.color;
+              bgCtx.fill();
+            }
+          } else if (currentAnimType === "petals") {
+            for (const p of particles) {
+              p.y += p.vy;
+              p.x += p.vx;
+              p.rot += p.vrot;
+              if (p.y > ch + 15) { p.y = -15; p.x = Math.random() * cw; }
+              if (p.x > cw + 15) p.x = -15;
+              bgCtx.save();
+              bgCtx.translate(p.x, p.y);
+              bgCtx.rotate(p.rot);
+              bgCtx.fillStyle = `rgba(244, 114, 182, ${p.alpha})`;
+              bgCtx.beginPath();
+              bgCtx.moveTo(0, -p.r * 1.15);
+              bgCtx.bezierCurveTo(p.r * 0.9, -p.r * 0.35, p.r * 0.85, p.r * 0.55, 0, p.r * 1.15);
+              bgCtx.bezierCurveTo(-p.r * 0.85, p.r * 0.55, -p.r * 0.9, -p.r * 0.35, 0, -p.r * 1.15);
+              bgCtx.fill();
+              bgCtx.strokeStyle = `rgba(251, 207, 232, ${p.alpha * 0.6})`;
+              bgCtx.lineWidth = 0.7;
+              bgCtx.beginPath();
+              bgCtx.moveTo(0, -p.r * 0.85);
+              bgCtx.lineTo(0, p.r * 0.85);
+              bgCtx.stroke();
+              bgCtx.restore();
+            }
+          } else if (currentAnimType === "stars") {
+            for (const s of particles) {
+              s.phase += s.speed;
+              const wave = 0.5 + 0.5 * Math.sin(s.phase);
+              const alpha = 0.22 + 0.72 * wave;
+
+              const haloR = s.r * (s.glint ? 3.8 + wave * 2.2 : 2.4 + wave * 1.1);
+              const grad = bgCtx.createRadialGradient(s.x, s.y, 0, s.x, s.y, haloR);
+              grad.addColorStop(0, `rgba(${s.rgb}, ${(alpha * (s.glint ? 0.55 : 0.35)).toFixed(3)})`);
+              grad.addColorStop(0.45, `rgba(${s.rgb}, ${(alpha * 0.16).toFixed(3)})`);
+              grad.addColorStop(1, `rgba(${s.rgb}, 0)`);
+              bgCtx.fillStyle = grad;
+              bgCtx.beginPath();
+              bgCtx.arc(s.x, s.y, haloR, 0, Math.PI * 2);
+              bgCtx.fill();
+
+              bgCtx.beginPath();
+              bgCtx.fillStyle = `rgba(${s.rgb}, ${alpha.toFixed(3)})`;
+              bgCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+              bgCtx.fill();
+
+              if (s.glint && alpha > 0.45) {
+                const len = s.r * (3.6 + wave * 2.2);
+                const diag = len * 0.55;
+                bgCtx.strokeStyle = `rgba(${s.rgb}, ${(alpha * 0.72).toFixed(3)})`;
+                bgCtx.lineWidth = 0.9;
+                bgCtx.beginPath();
+                bgCtx.moveTo(s.x - len, s.y); bgCtx.lineTo(s.x + len, s.y);
+                bgCtx.moveTo(s.x, s.y - len); bgCtx.lineTo(s.x, s.y + len);
+                bgCtx.stroke();
+
+                bgCtx.strokeStyle = `rgba(${s.rgb}, ${(alpha * 0.38).toFixed(3)})`;
+                bgCtx.lineWidth = 0.65;
+                bgCtx.beginPath();
+                bgCtx.moveTo(s.x - diag, s.y - diag); bgCtx.lineTo(s.x + diag, s.y + diag);
+                bgCtx.moveTo(s.x - diag, s.y + diag); bgCtx.lineTo(s.x + diag, s.y - diag);
+                bgCtx.stroke();
+              }
+            }
+          } else if (currentAnimType === "matrix") {
+            bgCtx.font = "13px monospace";
+            for (const p of particles) {
+              p.y += p.vy;
+              if (Math.random() > 0.96) {
+                p.char = String.fromCharCode(0x30a0 + Math.floor(Math.random() * 96));
+              }
+              if (p.y > ch + 20) p.y = -15;
+              bgCtx.fillStyle = "rgba(16, 185, 129, 0.24)";
+              bgCtx.fillText(p.char, p.x, p.y);
+            }
+          } else if (currentAnimType === "fireflies") {
+            for (const p of particles) {
+              p.phase += 0.03;
+              p.x += p.vx + Math.sin(p.phase * 0.7) * 0.2;
+              p.y += p.vy + Math.cos(p.phase * 0.5) * 0.2;
+              if (p.x < 0) p.x = cw;
+              if (p.x > cw) p.x = 0;
+              if (p.y < 0) p.y = ch;
+              if (p.y > ch) p.y = 0;
+              const a = 0.15 + 0.65 * (0.5 + 0.5 * Math.sin(p.phase));
+              bgCtx.fillStyle = `rgba(190, 242, 100, ${a})`;
+              bgCtx.beginPath();
+              bgCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+              bgCtx.fill();
+            }
+          } else if (currentAnimType === "rain") {
+            bgCtx.lineWidth = 1;
+            for (const p of particles) {
+              p.y += p.vy;
+              p.x -= p.vy * 0.15;
+              if (p.y > ch + 20) { p.y = -20; p.x = Math.random() * (cw + 80); }
+              bgCtx.strokeStyle = `rgba(148, 197, 255, ${p.alpha})`;
+              bgCtx.beginPath();
+              bgCtx.moveTo(p.x, p.y);
+              bgCtx.lineTo(p.x - p.len * 0.15, p.y + p.len);
+              bgCtx.stroke();
+            }
+          } else if (currentAnimType === "embers") {
+            for (const p of particles) {
+              p.phase += 0.04;
+              p.y += p.vy;
+              p.x += Math.sin(p.phase) * 0.5;
+              if (p.y < -15) { p.y = ch + 15; p.x = Math.random() * cw; }
+              bgCtx.save();
+              bgCtx.globalAlpha = p.alpha * (0.6 + 0.4 * Math.sin(p.phase));
+              bgCtx.fillStyle = p.color;
+              bgCtx.beginPath();
+              bgCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+              bgCtx.fill();
+              bgCtx.restore();
+            }
+          } else if (currentAnimType === "bubbles") {
+            bgCtx.lineWidth = 1;
+            for (const p of particles) {
+              p.phase += 0.02;
+              p.y += p.vy;
+              p.x += Math.sin(p.phase) * 0.3;
+              if (p.y < -20) { p.y = ch + 20; p.x = Math.random() * cw; }
+              bgCtx.strokeStyle = `rgba(125, 211, 252, ${p.alpha})`;
+              bgCtx.beginPath();
+              bgCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+              bgCtx.stroke();
+            }
+          } else if (currentAnimType === "confetti") {
+            for (const p of particles) {
+              p.y += p.vy;
+              p.x += p.vx;
+              p.rot += p.vrot;
+              if (p.y > ch + 15) { p.y = -15; p.x = Math.random() * cw; }
+              bgCtx.save();
+              bgCtx.translate(p.x, p.y);
+              bgCtx.rotate(p.rot);
+              bgCtx.globalAlpha = p.alpha;
+              bgCtx.fillStyle = p.color;
+              bgCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+              bgCtx.restore();
+            }
+          }
+
+          animRafId = requestAnimationFrame(loop);
+        }
+        animRafId = requestAnimationFrame(loop);
+      }
+
+      // Focus Mode (click near clock to enter, click anywhere or press Escape to exit; hide cursor after 2s idle)
+      const clockSection = document.querySelector(".clock-section");
+      let cursorIdleTimer = null;
+
+      function resetFocusCursorTimer() {
+        document.body.classList.remove("cursor-hidden");
+        clearTimeout(cursorIdleTimer);
+        if (document.body.classList.contains("focus-mode")) {
+          cursorIdleTimer = setTimeout(() => {
+            if (document.body.classList.contains("focus-mode")) {
+              document.body.classList.add("cursor-hidden");
+            }
+          }, 2000);
+        }
+      }
+
+      function enterFocusMode() {
+        document.body.classList.add("focus-mode");
+        resetFocusCursorTimer();
+      }
+
+      function exitFocusMode() {
+        document.body.classList.remove("focus-mode", "cursor-hidden");
+        clearTimeout(cursorIdleTimer);
+      }
+
+      clockSection.addEventListener("click", (e) => {
+        if (!document.body.classList.contains("focus-mode")) {
+          e.stopPropagation();
+          enterFocusMode();
+        }
+      });
+
+      document.addEventListener("mousemove", () => {
+        if (document.body.classList.contains("focus-mode")) {
+          resetFocusCursorTimer();
+        }
+      });
+
+      document.addEventListener("click", () => {
+        if (document.body.classList.contains("focus-mode")) {
+          exitFocusMode();
+        }
+      });
+
+      clockDisplay.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          if (document.body.classList.contains("focus-mode")) exitFocusMode();
+          else enterFocusMode();
+        }
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          if (themeModal.classList.contains("open")) {
+            themeModal.classList.remove("open");
+          } else if (settingsModal.classList.contains("open")) {
+            settingsModal.classList.remove("open");
+          } else if (document.body.classList.contains("focus-mode")) {
+            exitFocusMode();
+          }
+        }
+      });
+
+      // Custom Time Picker Logic
+      function setupTimePicker(el) {
+        const hhInput = el.querySelector(".ct-hh");
+        const mmInput = el.querySelector(".ct-mm");
+        const ampmBtn = el.querySelector(".ct-ampm");
+
+        function clampHour(val) {
+          let n = parseInt(val, 10);
+          if (isNaN(n)) n = 8;
+          if (settings.use24Hour) {
+            n = Math.max(0, Math.min(23, n));
+          } else {
+            if (n < 1) n = 12;
+            if (n > 12) n = ((n - 1) % 12) + 1;
+          }
+          return pad(n);
+        }
+
+        function clampMinute(val) {
+          let n = parseInt(val, 10);
+          if (isNaN(n)) n = 0;
+          n = Math.max(0, Math.min(59, n));
+          return pad(n);
+        }
+
+        function bindNumericInput(input, onAdvance) {
+          let justFocused = false;
+          input.addEventListener("focus", () => {
+            justFocused = true;
+            input.select();
+          });
+          input.addEventListener("mouseup", (e) => {
+            if (justFocused) {
+              e.preventDefault();
+              justFocused = false;
+            }
+          });
+          input.addEventListener("input", () => {
+            let digits = input.value.replace(/\D/g, "");
+            if (digits.length > 2) digits = digits.slice(-2);
+            input.value = digits;
+            if (digits.length === 2 && onAdvance) onAdvance();
+          });
+        }
+
+        bindNumericInput(hhInput, () => mmInput.focus());
+        bindNumericInput(mmInput, null);
+
+        hhInput.addEventListener("blur", () => {
+          hhInput.value = clampHour(hhInput.value);
+        });
+
+        mmInput.addEventListener("blur", () => {
+          mmInput.value = clampMinute(mmInput.value);
+        });
+
+        hhInput.addEventListener("keydown", (e) => {
+          if (e.key === ":") {
+            e.preventDefault();
+            mmInput.focus();
+            return;
+          }
+          if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+            e.preventDefault();
+            const delta = e.key === "ArrowUp" ? 1 : -1;
+            let n = (parseInt(hhInput.value, 10) || 0) + delta;
+            if (settings.use24Hour) n = (n + 24) % 24;
+            else n = ((n - 1 + 12) % 12) + 1;
+            hhInput.value = pad(n);
+          }
+        });
+
+        mmInput.addEventListener("keydown", (e) => {
+          if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+            e.preventDefault();
+            const delta = e.key === "ArrowUp" ? 1 : -1;
+            let n = ((parseInt(mmInput.value, 10) || 0) + delta + 60) % 60;
+            mmInput.value = pad(n);
+          }
+        });
+
+        ampmBtn.addEventListener("click", () => {
+          ampmBtn.textContent = ampmBtn.textContent === "AM" ? "PM" : "AM";
+        });
+      }
+
+      function createTimePickerElement(hhmm, labelPrefix) {
+        const [h24, m] = hhmm.split(":").map(Number);
+        const isPM = h24 >= 12;
+        const displayH = settings.use24Hour ? pad(h24) : pad(h24 % 12 || 12);
+
+        const wrap = document.createElement("div");
+        wrap.className = "custom-time";
+        wrap.innerHTML = `
+          <input type="text" inputmode="numeric" class="custom-time-part ct-hh" value="${displayH}" aria-label="${labelPrefix} hour" />
+          <span class="custom-time-colon">:</span>
+          <input type="text" inputmode="numeric" class="custom-time-part ct-mm" value="${pad(m)}" aria-label="${labelPrefix} minute" />
+          <button type="button" class="custom-time-ampm ct-ampm${settings.use24Hour ? " hidden" : ""}">${isPM ? "PM" : "AM"}</button>
+        `;
+        setupTimePicker(wrap);
+        return wrap;
+      }
+
+      function syncTimePickersFormat() {
+        document.querySelectorAll(".custom-time").forEach((el) => {
+          const hhInput = el.querySelector(".ct-hh");
+          const ampmBtn = el.querySelector(".ct-ampm");
+          let h = parseInt(hhInput.value, 10) || 0;
+
+          if (settings.use24Hour) {
+            if (!ampmBtn.classList.contains("hidden")) {
+              const isPM = ampmBtn.textContent === "PM";
+              if (isPM && h < 12) h += 12;
+              if (!isPM && h === 12) h = 0;
+              hhInput.value = pad(h);
+              ampmBtn.classList.add("hidden");
+            }
+          } else {
+            if (ampmBtn.classList.contains("hidden")) {
+              const isPM = h >= 12;
+              const h12 = h % 12 || 12;
+              hhInput.value = pad(h12);
+              ampmBtn.textContent = isPM ? "PM" : "AM";
+              ampmBtn.classList.remove("hidden");
+            }
+          }
+        });
+      }
+
+      function getPickerHHMM(el) {
+        let h = parseInt(el.querySelector(".ct-hh").value, 10) || 0;
+        let m = Math.max(0, Math.min(59, parseInt(el.querySelector(".ct-mm").value, 10) || 0));
+        if (!settings.use24Hour) {
+          const isPM = el.querySelector(".ct-ampm").textContent === "PM";
+          h = Math.max(1, Math.min(12, h));
+          if (isPM && h < 12) h += 12;
+          if (!isPM && h === 12) h = 0;
+        } else {
+          h = Math.max(0, Math.min(23, h));
+        }
+        return `${pad(h)}:${pad(m)}`;
+      }
+
+      setupTimePicker(startTimePicker);
+      setupTimePicker(endTimePicker);
+
+      // Time & Overlap Helpers
+      function pad(n) {
+        return String(n).padStart(2, "0");
+      }
+
+      function parseTimeToSeconds(hhmm) {
+        const [h, m] = hhmm.split(":").map(Number);
+        return h * 3600 + m * 60;
+      }
+
+      function formatHHMM(hhmm) {
+        const [h, m] = hhmm.split(":").map(Number);
+        if (settings.use24Hour) return `${pad(h)}:${pad(m)}`;
+        const period = h >= 12 ? "PM" : "AM";
+        const h12 = h % 12 || 12;
+        return `${h12}:${pad(m)} ${period}`;
+      }
+
+      function formatDuration(totalSeconds) {
+        const s = Math.max(0, Math.floor(totalSeconds));
+        const hrs = Math.floor(s / 3600);
+        const mins = Math.floor((s % 3600) / 60);
+        const secs = s % 60;
+        if (hrs > 0) return `${hrs}h ${pad(mins)}m ${pad(secs)}s`;
+        if (mins > 0) return `${mins}m ${pad(secs)}s`;
+        return `${secs}s`;
+      }
+
+      function escapeHtml(str) {
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      function findOverlappingPeriod(periods, startHHMM, endHHMM, excludeId = null) {
+        const startSec = parseTimeToSeconds(startHHMM);
+        const endSec = parseTimeToSeconds(endHHMM);
+        return periods.find((p) => {
+          if (p.id === excludeId) return false;
+          const pStart = parseTimeToSeconds(p.start);
+          const pEnd = parseTimeToSeconds(p.end);
+          return startSec < pEnd && endSec > pStart;
+        });
+      }
+
+      // Clock & Bell Status Loop
+      let lastActivePeriodId = null;
+
+      function getAdjustedNow() {
+        return new Date(Date.now() + settings.offsetSeconds * 1000);
+      }
+
+      function tick() {
+        const now = getAdjustedNow();
+        const h = now.getHours();
+        const m = now.getMinutes();
+        const s = now.getSeconds();
+
+        if (settings.use24Hour) {
+          clockTime.textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
+          clockAmPm.textContent = "";
+        } else {
+          const h12 = h % 12 || 12;
+          clockTime.textContent = `${h12}:${pad(m)}:${pad(s)}`;
+          clockAmPm.textContent = h >= 12 ? "PM" : "AM";
+        }
+
+        const nowSeconds = h * 3600 + m * 60 + s;
+        updateBellStatus(nowSeconds, now.getDay());
+      }
+
+      function updateBellStatus(nowSeconds, dayIndex) {
+        if (!settings.showBellStatus) {
+          bellStatus.textContent = "";
+          return;
+        }
+
+        const todaySched = getScheduleForToday(dayIndex);
+        const periods = todaySched ? todaySched.periods : [];
+
+        if (!periods.length) {
+          bellStatus.textContent = "";
+          if (lastActivePeriodId !== null) {
+            lastActivePeriodId = null;
+            renderBellPeriods();
+          }
+          return;
+        }
+
+        const sorted = [...periods].sort(
+          (a, b) => parseTimeToSeconds(a.start) - parseTimeToSeconds(b.start)
+        );
+
+        let current = null;
+        let next = null;
+
+        for (let i = 0; i < sorted.length; i++) {
+          const startSec = parseTimeToSeconds(sorted[i].start);
+          const endSec = parseTimeToSeconds(sorted[i].end);
+          if (nowSeconds >= startSec && nowSeconds < endSec) {
+            current = sorted[i];
+            next = sorted[i + 1] || null;
+            break;
+          }
+          if (nowSeconds < startSec && !next) {
+            next = sorted[i];
+            break;
+          }
+        }
+
+        const activeId = current ? current.id : null;
+        if (activeId !== lastActivePeriodId) {
+          lastActivePeriodId = activeId;
+          renderBellPeriods();
+        }
+
+        if (current) {
+          const remaining = parseTimeToSeconds(current.end) - nowSeconds;
+          const nextText = next
+            ? ` · Next: ${escapeHtml(next.name)} at ${formatHHMM(next.start)}`
+            : " · Last period";
+          bellStatus.innerHTML = `<strong>${escapeHtml(current.name)}</strong> ends in <strong>${formatDuration(remaining)}</strong>${nextText}`;
+        } else if (next) {
+          const until = parseTimeToSeconds(next.start) - nowSeconds;
+          bellStatus.innerHTML = `Next: <strong>${escapeHtml(next.name)}</strong> in <strong>${formatDuration(until)}</strong> (${formatHHMM(next.start)})`;
+        } else {
+          const first = sorted[0];
+          bellStatus.innerHTML = `Done for today · Next: ${escapeHtml(first.name)} at ${formatHHMM(first.start)}`;
+        }
+      }
+
+      // Homework
+      function renderHomework() {
+        hwCount.textContent = `${homework.length} ${homework.length === 1 ? "item" : "items"}`;
+        hwList.innerHTML = "";
+
+        if (!homework.length) {
+          const empty = document.createElement("li");
+          empty.className = "empty-state";
+          empty.textContent = "Nothing on the list.";
+          hwList.appendChild(empty);
+          return;
+        }
+
+        homework.forEach((item) => {
+          const li = document.createElement("li");
+          li.className = "hw-item";
+
+          const span = document.createElement("span");
+          span.className = "hw-text";
+          span.textContent = item.text;
+
+          const actions = document.createElement("div");
+          actions.className = "hw-actions";
+
+          const checkBtn = document.createElement("button");
+          checkBtn.type = "button";
+          checkBtn.className = "icon-btn check-btn";
+          checkBtn.title = "Check off";
+          checkBtn.setAttribute("aria-label", `Check off ${item.text}`);
+          checkBtn.innerHTML = `<span class="material-symbols-outlined icon-sm">check</span>`;
+          checkBtn.addEventListener("click", () => removeHomework(item.id, li, "removing-check"));
+
+          const trashBtn = document.createElement("button");
+          trashBtn.type = "button";
+          trashBtn.className = "icon-btn trash-btn";
+          trashBtn.title = "Trash";
+          trashBtn.setAttribute("aria-label", `Trash ${item.text}`);
+          trashBtn.innerHTML = `<span class="material-symbols-outlined icon-sm">delete</span>`;
+          trashBtn.addEventListener("click", () => removeHomework(item.id, li, "removing-trash"));
+
+          actions.appendChild(checkBtn);
+          actions.appendChild(trashBtn);
+          li.appendChild(span);
+          li.appendChild(actions);
+          hwList.appendChild(li);
+        });
+      }
+
+      function removeHomework(id, liElement, animClass) {
+        liElement.classList.add(animClass);
+        setTimeout(() => {
+          homework = homework.filter((item) => item.id !== id);
+          saveJSON(STORAGE_KEYS.homework, homework);
+          renderHomework();
+        }, 190);
+      }
+
+      hwForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const text = hwInput.value.trim();
+        if (!text) return;
+        homework.push({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, text });
+        saveJSON(STORAGE_KEYS.homework, homework);
+        hwInput.value = "";
+        renderHomework();
+      });
+
+      // Bell Schedules
+      function renderScheduleBar() {
+        scheduleBar.innerHTML = "";
+        schedules.forEach((sched) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = `sched-tab${sched.id === activeSchedId ? " active" : ""}`;
+          btn.textContent = sched.name;
+          btn.addEventListener("click", () => {
+            activeSchedId = sched.id;
+            editingPeriodId = null;
+            saveSchedules();
+            renderScheduleUI();
+          });
+          scheduleBar.appendChild(btn);
+        });
+
+        const addBtn = document.createElement("button");
+        addBtn.type = "button";
+        addBtn.className = "sched-tab sched-tab-add";
+        addBtn.title = "Add schedule";
+        addBtn.textContent = "+";
+        addBtn.addEventListener("click", () => {
+          newSchedForm.classList.toggle("open");
+          if (newSchedForm.classList.contains("open")) {
+            newSchedInput.focus();
+          }
+        });
+        scheduleBar.appendChild(addBtn);
+      }
+
+      function renderDayPills() {
+        const active = getActiveSchedule();
+        dayPills.innerHTML = "";
+        DAY_LABELS.forEach((label, dayIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          const isAssigned = Array.isArray(active.days) && active.days.includes(dayIdx);
+          btn.className = `day-pill${isAssigned ? " active" : ""}`;
+          btn.textContent = label;
+          btn.title = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][dayIdx];
+          btn.addEventListener("click", () => {
+            if (isAssigned) {
+              active.days = active.days.filter((d) => d !== dayIdx);
+            } else {
+              schedules.forEach((s) => {
+                if (s.id !== active.id && Array.isArray(s.days)) {
+                  s.days = s.days.filter((d) => d !== dayIdx);
+                }
+              });
+              active.days = [...(active.days || []), dayIdx].sort();
+            }
+            saveSchedules();
+            renderDayPills();
+            tick();
+          });
+          dayPills.appendChild(btn);
+        });
+
+        deleteSchedBtn.style.display = schedules.length > 1 ? "inline" : "none";
+      }
+
+      function renderBellPeriods() {
+        const active = getActiveSchedule();
+        const sorted = [...active.periods].sort(
+          (a, b) => parseTimeToSeconds(a.start) - parseTimeToSeconds(b.start)
+        );
+        bellCount.textContent = `${sorted.length} ${sorted.length === 1 ? "period" : "periods"}`;
+        bellList.innerHTML = "";
+
+        if (!sorted.length) {
+          const empty = document.createElement("li");
+          empty.className = "empty-state";
+          empty.textContent = "No periods in this schedule.";
+          bellList.appendChild(empty);
+          updateBellScrollCue();
+          return;
+        }
+
+        sorted.forEach((period) => {
+          const li = document.createElement("li");
+          const isActive = period.id === lastActivePeriodId;
+
+          if (editingPeriodId === period.id) {
+            li.className = "bell-item is-editing";
+
+            const topRow = document.createElement("div");
+            topRow.className = "bell-edit-row";
+
+            const nameInput = document.createElement("input");
+            nameInput.type = "text";
+            nameInput.className = "bell-edit-name";
+            nameInput.value = period.name;
+            nameInput.setAttribute("aria-label", "Edit period name");
+
+            const saveBtn = document.createElement("button");
+            saveBtn.type = "button";
+            saveBtn.className = "icon-btn check-btn";
+            saveBtn.title = "Save";
+            saveBtn.setAttribute("aria-label", "Save period");
+            saveBtn.innerHTML = `<span class="material-symbols-outlined icon-sm">check</span>`;
+
+            const cancelBtn = document.createElement("button");
+            cancelBtn.type = "button";
+            cancelBtn.className = "icon-btn trash-btn";
+            cancelBtn.title = "Cancel";
+            cancelBtn.setAttribute("aria-label", "Cancel editing");
+            cancelBtn.innerHTML = `<span class="material-symbols-outlined icon-sm">close</span>`;
+
+            topRow.appendChild(nameInput);
+            topRow.appendChild(saveBtn);
+            topRow.appendChild(cancelBtn);
+
+            const timesRow = document.createElement("div");
+            timesRow.className = "bell-edit-times";
+            const editStartPicker = createTimePickerElement(period.start, "Edit start");
+            const sep = document.createElement("span");
+            sep.className = "time-sep";
+            sep.textContent = "to";
+            const editEndPicker = createTimePickerElement(period.end, "Edit end");
+
+            timesRow.appendChild(editStartPicker);
+            timesRow.appendChild(sep);
+            timesRow.appendChild(editEndPicker);
+
+            const commitEdit = () => {
+              const newName = nameInput.value.trim();
+              const newStart = getPickerHHMM(editStartPicker);
+              const newEnd = getPickerHHMM(editEndPicker);
+
+              if (!newName) {
+                showToast("Period name can't be empty.");
+                return;
+              }
+              if (parseTimeToSeconds(newEnd) <= parseTimeToSeconds(newStart)) {
+                showToast("End time must be after start time.");
+                return;
+              }
+              const conflict = findOverlappingPeriod(active.periods, newStart, newEnd, period.id);
+              if (conflict) {
+                showToast(`Overlaps with "${conflict.name}" (${formatHHMM(conflict.start)} – ${formatHHMM(conflict.end)})`);
+                return;
+              }
+
+              period.name = newName;
+              period.start = newStart;
+              period.end = newEnd;
+              editingPeriodId = null;
+              saveSchedules();
+              renderBellPeriods();
+              tick();
+            };
+
+            saveBtn.addEventListener("click", commitEdit);
+            nameInput.addEventListener("keydown", (e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                commitEdit();
+              } else if (e.key === "Escape") {
+                editingPeriodId = null;
+                renderBellPeriods();
+              }
+            });
+            cancelBtn.addEventListener("click", () => {
+              editingPeriodId = null;
+              renderBellPeriods();
+            });
+
+            li.appendChild(topRow);
+            li.appendChild(timesRow);
+            bellList.appendChild(li);
+            return;
+          }
+
+          li.className = `bell-item${isActive ? " is-active" : ""}`;
+
+          const info = document.createElement("div");
+          info.className = "bell-item-info";
+
+          const nameEl = document.createElement("span");
+          nameEl.className = "bell-item-name";
+          if (isActive) {
+            const dot = document.createElement("span");
+            dot.className = "active-dot";
+            nameEl.appendChild(dot);
+          }
+          nameEl.appendChild(document.createTextNode(period.name));
+
+          const timeEl = document.createElement("span");
+          timeEl.className = "bell-item-time";
+          timeEl.textContent = `${formatHHMM(period.start)} – ${formatHHMM(period.end)}`;
+
+          info.appendChild(nameEl);
+          info.appendChild(timeEl);
+
+          const actions = document.createElement("div");
+          actions.className = "bell-item-actions";
+
+          const editBtn = document.createElement("button");
+          editBtn.type = "button";
+          editBtn.className = "icon-btn edit-btn";
+          editBtn.title = "Edit period";
+          editBtn.setAttribute("aria-label", `Edit ${period.name}`);
+          editBtn.innerHTML = `<span class="material-symbols-outlined icon-sm">edit</span>`;
+          editBtn.addEventListener("click", () => {
+            editingPeriodId = period.id;
+            renderBellPeriods();
+          });
+
+          const delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className = "icon-btn trash-btn";
+          delBtn.title = "Remove period";
+          delBtn.setAttribute("aria-label", `Remove ${period.name}`);
+          delBtn.innerHTML = `<span class="material-symbols-outlined icon-sm">delete</span>`;
+          delBtn.addEventListener("click", () => {
+            active.periods = active.periods.filter((p) => p.id !== period.id);
+            saveSchedules();
+            renderBellPeriods();
+            tick();
+          });
+
+          actions.appendChild(editBtn);
+          actions.appendChild(delBtn);
+          li.appendChild(info);
+          li.appendChild(actions);
+          bellList.appendChild(li);
+        });
+        updateBellScrollCue();
+      }
+
+      function updateBellScrollCue() {
+        const overflow = bellList.scrollHeight - bellList.clientHeight > 4;
+        const canDown = overflow && bellList.scrollTop + bellList.clientHeight < bellList.scrollHeight - 4;
+        const canUp = overflow && bellList.scrollTop > 4;
+        bellScrollWrap.classList.toggle("can-scroll-down", canDown);
+        bellScrollWrap.classList.toggle("can-scroll-up", canUp);
+      }
+
+      bellList.addEventListener("scroll", updateBellScrollCue);
+      window.addEventListener("resize", updateBellScrollCue);
+      bellScrollCue.addEventListener("click", () => {
+        bellList.scrollBy({ top: 130, behavior: "smooth" });
+      });
+
+      function renderScheduleUI() {
+        renderScheduleBar();
+        renderDayPills();
+        renderBellPeriods();
+      }
+
+      newSchedForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = newSchedInput.value.trim();
+        if (!name) return;
+        const newSched = {
+          id: `sched-${Date.now()}`,
+          name,
+          days: [],
+          periods: [],
+        };
+        schedules.push(newSched);
+        activeSchedId = newSched.id;
+        editingPeriodId = null;
+        newSchedInput.value = "";
+        newSchedForm.classList.remove("open");
+        saveSchedules();
+        renderScheduleUI();
+        tick();
+      });
+
+      cancelNewSched.addEventListener("click", () => {
+        newSchedInput.value = "";
+        newSchedForm.classList.remove("open");
+      });
+
+      clearPeriodsBtn.addEventListener("click", () => {
+        const active = getActiveSchedule();
+        active.periods = [];
+        editingPeriodId = null;
+        saveSchedules();
+        renderBellPeriods();
+        tick();
+      });
+
+      deleteSchedBtn.addEventListener("click", () => {
+        if (schedules.length <= 1) return;
+        schedules = schedules.filter((s) => s.id !== activeSchedId);
+        activeSchedId = schedules[0].id;
+        editingPeriodId = null;
+        saveSchedules();
+        renderScheduleUI();
+        tick();
+      });
+
+      bellForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = bellName.value.trim();
+        const start = getPickerHHMM(startTimePicker);
+        const end = getPickerHHMM(endTimePicker);
+        if (!name) {
+          showToast("Enter a period name.");
+          return;
+        }
+        if (parseTimeToSeconds(end) <= parseTimeToSeconds(start)) {
+          showToast("End time must be after start time.");
+          return;
+        }
+
+        const active = getActiveSchedule();
+        const conflict = findOverlappingPeriod(active.periods, start, end);
+        if (conflict) {
+          showToast(`Overlaps with "${conflict.name}" (${formatHHMM(conflict.start)} – ${formatHHMM(conflict.end)})`);
+          return;
+        }
+
+        active.periods.push({
+          id: `p-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          name,
+          start,
+          end,
+        });
+        saveSchedules();
+        bellName.value = "";
+        renderBellPeriods();
+        tick();
+      });
+
+      // Settings Modal Logic
+      const settingsTabs = document.getElementById("settingsTabs");
+      const settingsPanes = document.querySelectorAll(".settings-pane");
+
+      settingsTabs.querySelectorAll(".theme-tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const target = btn.dataset.settingsTab;
+          settingsTabs.querySelectorAll(".theme-tab-btn").forEach((b) => b.classList.toggle("active", b === btn));
+          settingsPanes.forEach((p) => p.classList.toggle("active", p.dataset.settingsPane === target));
+        });
+      });
+      function applySettingsUI() {
+        settingFormatBtn.textContent = settings.use24Hour ? "24h" : "12h";
+        const mins = Math.trunc(settings.offsetSeconds / 60);
+        const secs = settings.offsetSeconds % 60;
+        offsetMinVal.textContent = `${mins > 0 ? "+" : ""}${mins}m`;
+        offsetSecVal.textContent = `${secs > 0 ? "+" : ""}${secs}s`;
+        settingBellStatusBtn.textContent = settings.showBellStatus ? "On" : "Off";
+        settingFocusBellBtn.textContent = settings.hideBellInFocus ? "Yes" : "No";
+        settingWeatherBtn.textContent = settings.showWeather ? "On" : "Off";
+        settingTempUnitBtn.textContent = settings.tempUnit === "celsius" ? "°C" : "°F";
+        weatherLocInput.value = settings.weatherLocation || "";
+        document.body.classList.toggle("hide-bell-in-focus", settings.hideBellInFocus);
+        const activeLayout = VALID_LAYOUTS.includes(settings.layout) ? settings.layout : "hero";
+        document.body.setAttribute("data-layout", activeLayout);
+        layoutCards.forEach((card) => {
+          card.classList.toggle("active", card.dataset.layoutChoice === activeLayout);
+        });
+        applyBrightness(settings.brightness ?? 100);
+        syncTimePickersFormat();
+      }
+
+      function applyBrightness(val) {
+        const clamped = Math.max(20, Math.min(100, Number(val) || 100));
+        settings.brightness = clamped;
+        brightnessSlider.value = String(clamped);
+        brightnessVal.textContent = `${clamped}%`;
+        brightnessOverlay.style.opacity = String(((100 - clamped) / 100).toFixed(2));
+      }
+
+      brightnessSlider.addEventListener("input", () => {
+        applyBrightness(brightnessSlider.value);
+        saveSettings();
+      });
+
+      layoutCards.forEach((card) => {
+        card.addEventListener("click", () => {
+          settings.layout = card.dataset.layoutChoice;
+          saveSettings();
+          applySettingsUI();
+        });
+      });
+
+      settingsBtn.addEventListener("click", () => {
+        applySettingsUI();
+        settingsModal.classList.add("open");
+      });
+
+      closeSettingsBtn.addEventListener("click", () => {
+        settingsModal.classList.remove("open");
+      });
+
+      settingsModal.addEventListener("click", (e) => {
+        if (e.target === settingsModal) settingsModal.classList.remove("open");
+      });
+
+      settingFormatBtn.addEventListener("click", () => {
+        settings.use24Hour = !settings.use24Hour;
+        saveSettings();
+        applySettingsUI();
+        renderBellPeriods();
+        tick();
+      });
+
+      offsetMinDown.addEventListener("click", () => {
+        settings.offsetSeconds -= 60;
+        saveSettings();
+        applySettingsUI();
+        tick();
+      });
+
+      offsetMinUp.addEventListener("click", () => {
+        settings.offsetSeconds += 60;
+        saveSettings();
+        applySettingsUI();
+        tick();
+      });
+
+      offsetSecDown.addEventListener("click", () => {
+        settings.offsetSeconds -= 1;
+        saveSettings();
+        applySettingsUI();
+        tick();
+      });
+
+      offsetSecUp.addEventListener("click", () => {
+        settings.offsetSeconds += 1;
+        saveSettings();
+        applySettingsUI();
+        tick();
+      });
+
+      settingBellStatusBtn.addEventListener("click", () => {
+        settings.showBellStatus = !settings.showBellStatus;
+        saveSettings();
+        applySettingsUI();
+        tick();
+      });
+
+      settingFocusBellBtn.addEventListener("click", () => {
+        settings.hideBellInFocus = !settings.hideBellInFocus;
+        saveSettings();
+        applySettingsUI();
+      });
+
+      resetOffsetBtn.addEventListener("click", () => {
+        settings.offsetSeconds = 0;
+        saveSettings();
+        applySettingsUI();
+        tick();
+      });
+
+      clearHwBtn.addEventListener("click", () => {
+        homework = [];
+        saveJSON(STORAGE_KEYS.homework, homework);
+        renderHomework();
+      });
+
+      // Weather (Open-Meteo + permissionless IP fallback)
+      function weatherCodeInfo(code) {
+        if (code === 0) return { text: "Clear", icon: "wb_sunny" };
+        if (code === 1 || code === 2) return { text: "Partly Cloudy", icon: "partly_cloudy_day" };
+        if (code === 3) return { text: "Cloudy", icon: "cloud" };
+        if (code === 45 || code === 48) return { text: "Foggy", icon: "foggy" };
+        if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code)) {
+          return { text: "Rain", icon: "rainy" };
+        }
+        if ([71, 73, 75, 77, 85, 86].includes(code)) return { text: "Snow", icon: "weather_snowy" };
+        if ([95, 96, 99].includes(code)) return { text: "Storm", icon: "thunderstorm" };
+        return { text: "Weather", icon: "cloud" };
+      }
+
+      async function resolveAutoLocation() {
+        try {
+          const res = await fetch("https://ipwho.is/");
+          const data = await res.json();
+          if (data && data.success !== false && typeof data.latitude === "number") {
+            return { lat: data.latitude, lon: data.longitude, label: data.city || data.region || "Nearby" };
+          }
+        } catch {}
+        try {
+          const res2 = await fetch("https://get.geojs.io/v1/ip/geo.json");
+          const data2 = await res2.json();
+          if (data2 && data2.latitude) {
+            return { lat: parseFloat(data2.latitude), lon: parseFloat(data2.longitude), label: data2.city || "Nearby" };
+          }
+        } catch {}
+        return null;
+      }
+
+      const US_STATES = {
+        al:"alabama",ak:"alaska",az:"arizona",ar:"arkansas",ca:"california",co:"colorado",ct:"connecticut",
+        de:"delaware",fl:"florida",ga:"georgia",hi:"hawaii",id:"idaho",il:"illinois",in:"indiana",ia:"iowa",
+        ks:"kansas",ky:"kentucky",la:"louisiana",me:"maine",md:"maryland",ma:"massachusetts",mi:"michigan",
+        mn:"minnesota",ms:"mississippi",mo:"missouri",mt:"montana",ne:"nebraska",nv:"nevada",nh:"new hampshire",
+        nj:"new jersey",nm:"new mexico",ny:"new york",nc:"north carolina",nd:"north dakota",oh:"ohio",
+        ok:"oklahoma",or:"oregon",pa:"pennsylvania",ri:"rhode island",sc:"south carolina",sd:"south dakota",
+        tn:"tennessee",tx:"texas",ut:"utah",vt:"vermont",va:"virginia",wa:"washington",wv:"west virginia",
+        wi:"wisconsin",wy:"wyoming",dc:"district of columbia"
+      };
+
+      async function geocodeLocation(query) {
+        try {
+          const parts = query.split(",").map((s) => s.trim()).filter(Boolean);
+          const cityQuery = parts[0] || query;
+          const regionHint = parts.slice(1).join(" ").toLowerCase();
+          const expandedHint = US_STATES[regionHint] || regionHint;
+
+          const res = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityQuery)}&count=10&language=en&format=json`,
+            { cache: "no-store" }
+          );
+          if (!res.ok) return null;
+          const data = await res.json();
+          if (!data || !Array.isArray(data.results) || data.results.length === 0) return null;
+
+          let match = data.results[0];
+          if (expandedHint) {
+            const found = data.results.find((r) => {
+              const haystack = [r.admin1, r.country, r.country_code].filter(Boolean).join(" ").toLowerCase();
+              return haystack.includes(expandedHint) || haystack.includes(regionHint);
+            });
+            if (found) match = found;
+          }
+          const label = match.admin1 && match.country_code === "US"
+            ? `${match.name}, ${Object.keys(US_STATES).find((k) => US_STATES[k] === match.admin1.toLowerCase())?.toUpperCase() || match.admin1}`
+            : match.name;
+          return { lat: match.latitude, lon: match.longitude, label };
+        } catch {
+          return null;
+        }
+      }
+
+      async function applyWeatherLocationQuery(q) {
+        const trimmed = q.trim();
+        if (!trimmed) {
+          settings.weatherLocation = "";
+          settings.weatherCoords = null;
+          saveSettings();
+          applySettingsUI();
+          showToast("Using nearest auto-detected location.");
+          await updateWeather();
+          return true;
+        }
+        const found = await geocodeLocation(trimmed);
+        if (!found) {
+          showToast(`Couldn't find "${trimmed}".`);
+          await updateWeather();
+          return false;
+        }
+        settings.weatherLocation = found.label;
+        settings.weatherCoords = found;
+        saveSettings();
+        applySettingsUI();
+        showToast(`Weather set to ${found.label}.`);
+        await updateWeather();
+        return true;
+      }
+
+      function openInlineWeatherEditor(currentLabel) {
+        weatherLabel.innerHTML = "";
+        const form = document.createElement("form");
+        form.className = "weather-inline-form";
+        form.autocomplete = "off";
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "weather-inline-input";
+        input.value = settings.weatherLocation || currentLabel || "";
+        input.placeholder = "City (blank = auto)";
+        input.setAttribute("aria-label", "Edit weather location");
+
+        const saveBtn = document.createElement("button");
+        saveBtn.type = "submit";
+        saveBtn.className = "icon-btn check-btn";
+        saveBtn.style.width = "24px";
+        saveBtn.style.height = "24px";
+        saveBtn.title = "Save location";
+        saveBtn.innerHTML = `<span class="material-symbols-outlined" style="font-size:14px;">check</span>`;
+
+        const cancelBtn = document.createElement("button");
+        cancelBtn.type = "button";
+        cancelBtn.className = "icon-btn trash-btn";
+        cancelBtn.style.width = "24px";
+        cancelBtn.style.height = "24px";
+        cancelBtn.title = "Cancel";
+        cancelBtn.innerHTML = `<span class="material-symbols-outlined" style="font-size:14px;">close</span>`;
+
+        form.addEventListener("click", (e) => e.stopPropagation());
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          await applyWeatherLocationQuery(input.value);
+        });
+        cancelBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          updateWeather();
+        });
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            e.stopPropagation();
+            updateWeather();
+          }
+        });
+
+        form.appendChild(input);
+        form.appendChild(saveBtn);
+        form.appendChild(cancelBtn);
+        weatherLabel.appendChild(form);
+        input.focus();
+        input.select();
+      }
+
+      async function updateWeather() {
+        if (!settings.showWeather) {
+          weatherLabel.innerHTML = "";
+          return;
+        }
+
+        let coords = settings.weatherCoords;
+        if (!coords) {
+          if (settings.weatherLocation && settings.weatherLocation.trim()) {
+            coords = await geocodeLocation(settings.weatherLocation.trim());
+          } else {
+            coords = await resolveAutoLocation();
+          }
+          if (coords) {
+            settings.weatherCoords = coords;
+            saveSettings();
+          }
+        }
+
+        if (!coords) {
+          weatherLabel.textContent = "";
+          return;
+        }
+
+        try {
+          const unit = settings.tempUnit === "celsius" ? "celsius" : "fahrenheit";
+          const unitSym = unit === "celsius" ? "°C" : "°F";
+          const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,weather_code&temperature_unit=${unit}`;
+          const res = await fetch(url, { cache: "no-store" });
+          const data = await res.json();
+          if (data && data.current) {
+            const temp = Math.round(data.current.temperature_2m);
+            const info = weatherCodeInfo(data.current.weather_code);
+            weatherLabel.innerHTML = `
+              <span class="material-symbols-outlined icon-sm">${info.icon}</span>
+              <span>${temp}${unitSym} · ${escapeHtml(info.text)} ·</span>
+            `;
+            const locBtn = document.createElement("button");
+            locBtn.type = "button";
+            locBtn.className = "weather-loc-btn";
+            locBtn.title = "Click to change weather location";
+            locBtn.textContent = coords.label;
+            locBtn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              openInlineWeatherEditor(coords.label);
+            });
+            weatherLabel.appendChild(locBtn);
+          }
+        } catch {
+          // Keep existing label or stay quiet on network error
+        }
+      }
+
+      settingWeatherBtn.addEventListener("click", () => {
+        settings.showWeather = !settings.showWeather;
+        saveSettings();
+        applySettingsUI();
+        updateWeather();
+      });
+
+      settingTempUnitBtn.addEventListener("click", () => {
+        settings.tempUnit = settings.tempUnit === "celsius" ? "fahrenheit" : "celsius";
+        saveSettings();
+        applySettingsUI();
+        updateWeather();
+      });
+
+      weatherLocForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        await applyWeatherLocationQuery(weatherLocInput.value);
+      });
+
+      // Initialize
+      applyTheme(currentThemeId);
+      applySettingsUI();
+      renderHomework();
+      renderScheduleUI();
+      tick();
+      setInterval(tick, 1000);
+      updateWeather();
+      setInterval(updateWeather, 15 * 60 * 1000);
+    })();
+  </script>
+</body>
+</html>
